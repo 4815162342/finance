@@ -1,26 +1,41 @@
 import React from 'react';
-import logo from './logo.svg';
+import FileInput from './core/FileInput';
 import './App.css';
+import './darkMode.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+	state = {appClasses: ["App"]};
+	
+	onDragEnter = addClass => {
+		const {appClasses} = this.state;
+		
+		if (!appClasses.find(el => el === addClass)) {
+			this.setState({appClasses:appClasses.concat(addClass)});
+		}
+	}
+	
+	onDragLeave = removeClass => {
+		const {appClasses} = this.state;
+		
+		if (appClasses.find(el => el === removeClass)) {
+			this.setState({
+				appClasses: appClasses.filter(el => el !== removeClass)
+			});
+		}
+	}
+	
+	render() {
+		const {appClasses} = this.state;
+		
+		return (
+			<div className={appClasses.join(' ')}>
+				<FileInput
+					onDragEnter={this.onDragEnter}
+					onDragLeave={this.onDragLeave}
+				/>
+			</div>
+		);
+	}
 }
 
 export default App;
