@@ -1,6 +1,11 @@
 import React, {Component, Fragment} from 'react';
+import './index.css';
 
 const draggingClass = 'dragging-file';
+const filetypeDelimiter = {
+	'text/tab-separated-values': '\t',
+	'text/csv': ',',
+};
 
 class FileInput extends Component {
 	componentDidMount() {
@@ -17,19 +22,32 @@ class FileInput extends Component {
 		this.props.onDragLeave(draggingClass);
 	}
 	
+	// User drops file
 	handleDrop = e => {
 		e.stopPropagation();
 		e.preventDefault();
+		alert();
 		this.props.onDragLeave(draggingClass);
 		this.handleFile(e.dataTransfer.files)
 	}
 	
-	handleFile = file => {
-		console.log(file);
-	}
-	
+	// User uses OS file picker
 	handleFileInput = e => {
 		this.handleFile(e.target.files)
+	}
+	
+	// Handle the raw file data
+	handleFile = files => {
+		for (let i = 0; i < files.length; i++) {
+			const delimiter = filetypeDelimiter[files[i].type];
+			
+			const fr = new FileReader();
+			fr.onload = e => {
+				const rows = fr.result.split('\n');
+				console.log(rows[0])
+			}
+			fr.readAsText(files[i]);
+		}
 	}
 	
 	handleClickDrop = () => {
@@ -47,6 +65,7 @@ class FileInput extends Component {
 					accept=".csv,.tsv"
 					className="inputFileDrop"
 					ref={this.hiddenInput}
+					multiple={true}
 				/>
 				<div onClick={this.handleClickDrop} className="divFileDrop">
 					<div>Drop files here</div>

@@ -1,0 +1,2 @@
+.inputFileDrop {display: none;}
+.divFileDrop {width: 150px; height: 120px; margin: 0 auto; background-color: #ccc; border: 2px dashed black; display: flex; align-items: center; justify-content: space-between; flex-direction: column; padding: 15px 0; cursor: pointer;}

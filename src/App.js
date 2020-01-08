@@ -1,5 +1,5 @@
 import React from 'react';
-import FileInput from './core/FileInput';
+import FileInput from './core/FileInput/';
 import './App.css';
 import './darkMode.css';
 
