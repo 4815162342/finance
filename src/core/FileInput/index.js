@@ -1,4 +1,5 @@
 import React, {Component, Fragment} from 'react';
+import Database from '../db/';
 import './index.css';
 
 const draggingClass = 'dragging-file';
@@ -6,6 +7,8 @@ const filetypeDelimiter = {
 	'text/tab-separated-values': '\t',
 	'text/csv': ',',
 };
+
+const db = new Database();
 
 class FileInput extends Component {
 	componentDidMount() {
@@ -44,7 +47,15 @@ class FileInput extends Component {
 			const fr = new FileReader();
 			fr.onload = e => {
 				const rows = fr.result.split('\n');
-				console.log(rows[0])
+				const headers = rows[0].split(delimiter);
+				
+				rows.forEach((row, rowIndex) => {
+					if (rowIndex === 0) return;
+					const transaction = {};
+					row.split(delimiter).forEach((val, colIndex) => transaction[headers[colIndex]] = val);
+					
+					db.Transactions.put(transaction);
+				})
 			}
 			fr.readAsText(files[i]);
 		}
