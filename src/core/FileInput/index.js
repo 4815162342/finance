@@ -47,15 +47,20 @@ class FileInput extends Component {
 			const fr = new FileReader();
 			fr.onload = e => {
 				const rows = fr.result.split('\n');
-				const headers = rows[0].split(delimiter);
+				const headers = rows[0].split(delimiter).map(header => header.trim());
+				
 				
 				rows.forEach((row, rowIndex) => {
 					if (rowIndex === 0) return;
+					
 					const transaction = {};
 					row.split(delimiter).forEach((val, colIndex) => transaction[headers[colIndex]] = val);
 					
-					db.Transactions.put(transaction);
-				})
+					db.Transactions.put({
+						raw: transaction,
+						importedOn: new Date(),
+					});
+				});
 			}
 			fr.readAsText(files[i]);
 		}
