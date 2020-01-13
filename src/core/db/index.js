@@ -13,8 +13,12 @@ export default class Database {
 			
 			this.objectStoreNames.forEach(ob => {
 				this[ob] = {
-					get: input => {
+					get: (input, callback) => {
+						if (input instanceof Array)
+							input = IDBKeyRange.bound(input[0], input[1])
+						const getRequest = this.db.transaction(ob, "readwrite").objectStore(ob).get(input);
 						
+						getRequest.onsuccess = () => callback(getRequest.result);
 					},
 					put: input => {
 						return this.db.transaction(ob, "readwrite").objectStore(ob).put(input);

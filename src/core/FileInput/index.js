@@ -64,7 +64,8 @@ class FileInput extends Component {
 	}
 	
 	handleClickDrop = () => {
-		this.hiddenInput.current.click();
+		db.Transactions.get(888, console.log)
+		//this.hiddenInput.current.click();
 	}
 	
 	hiddenInput = React.createRef();
