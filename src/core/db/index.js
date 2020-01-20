@@ -1,3 +1,5 @@
+import ObjectHash from 'object-hash';
+
 export default class Database {
 	name = "FinanceManager";
 	db = null;
@@ -21,6 +23,7 @@ export default class Database {
 						getRequest.onsuccess = () => callback(getRequest.result);
 					},
 					put: input => {
+						input._id = ObjectHash(input, {algorithm: 'sha1'});
 						return this.db.transaction(ob, "readwrite").objectStore(ob).put(input);
 					}
 				}
@@ -29,7 +32,7 @@ export default class Database {
 		dbRequest.onupgradeneeded = () => {
 			this.db = dbRequest.result;
 			this.objectStoreNames.forEach(ob => {
-				this.db.createObjectStore(ob, {keyPath: "_id", autoIncrement: true});
+				this.db.createObjectStore(ob, {keyPath: "_id"});
 			})
 		};
 	};

@@ -64,8 +64,7 @@ class FileInput extends Component {
 	}
 	
 	handleClickDrop = () => {
-		db.Transactions.get(888, console.log)
-		//this.hiddenInput.current.click();
+		this.hiddenInput.current.click();
 	}
 	
 	hiddenInput = React.createRef();
@@ -136,7 +135,7 @@ class FileInput extends Component {
 				row.split(file.delimiter).forEach((val, colIndex) => {
 					transaction.raw[file.headers[colIndex]] = val;
 					
-					const requiredField = headerEntries.find(el => el[1] == colIndex);
+					const requiredField = headerEntries.find(el => parseInt(el[1]) === colIndex);
 					if (requiredField)
 						transaction[requiredField[0].toLowerCase()] = requiredFieldsParse[requiredField[0]](val);
 				});
