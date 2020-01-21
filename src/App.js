@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {Component} from 'react';
 import FileInput from './core/FileInput/';
+import TransactionsList from './core/TransactionsList/';
 import './App.css';
 import './darkMode.css';
 
-class App extends React.Component {
+class App extends Component {
 	state = {appClasses: ["App"]};
 	
 	onDragEnter = addClass => {
@@ -33,6 +34,7 @@ class App extends React.Component {
 					onDragEnter={this.onDragEnter}
 					onDragLeave={this.onDragLeave}
 				/>
+				<TransactionsList />
 			</div>
 		);
 	}
