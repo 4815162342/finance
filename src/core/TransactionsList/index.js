@@ -6,19 +6,22 @@ class TransactionsList extends Component {
 		records: [],
 	};
 	
-	// componentDidMount() {
-	// 	db = new Database();
-	// 	console.log(db, db.Transactions)
-	// 	//db.Transactions.get(IDBKeyRange.lowerBound('Z'), console.log)
-	// }
+	componentDidMount() {
+		// This is a huge hack, I'm coming back to this
+		setTimeout(() => {
+			db.Transactions.get(
+				IDBKeyRange.bound('0', 'A'),
+				records => this.setState({records})
+			)
+		}, 500);
+	}
 	
-	// componentWillUnmount() {
-	// 	db.close();
-	// }
+	componentWillUnmount() {
+		db.close();
+	}
 
 	render() {
 		const {records} = this.state;
-		console.log(db)
 		
 		return (
 			<div>

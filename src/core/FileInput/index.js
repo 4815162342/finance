@@ -4,7 +4,7 @@ import FileHeaderMap from './FileHeaderMap'
 import {draggingClass, filetypeDelimiter, requiredFieldsMap, requiredFieldsParse} from './constants';
 import './index.css';
 
-const db = new Database();
+let db;
 
 class FileInput extends Component {
 	state = {
@@ -15,6 +15,12 @@ class FileInput extends Component {
 		window.addEventListener('dragenter', this.handleDragEnter);
 		window.addEventListener('dragleave', this.handleDragLeave);
 		window.addEventListener('drop', this.handleDrop);
+		
+		db = new Database();
+	}
+	
+	componentWillUnmount() {
+		db.close();
 	}
 	
 	handleDragEnter = () => {

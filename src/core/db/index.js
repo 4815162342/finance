@@ -16,11 +16,19 @@ export default class Database {
 			this.objectStoreNames.forEach(ob => {
 				this[ob] = {
 					get: (input, callback) => {
-						if (input instanceof Array)
-							input = IDBKeyRange.bound(input[0], input[1])
-						const getRequest = this._db.transaction(ob, "readwrite").objectStore(ob).get(input);
+						const getRequest = this._db.transaction(ob, "readwrite").objectStore(ob).openCursor(input);
 						
-						getRequest.onsuccess = () => callback(getRequest.result);
+						const result = [];
+						getRequest.onsuccess = e => {
+							const cursor = e.target.result;
+							
+							if (cursor) {
+								result.push(cursor.value);
+								cursor.continue();
+							}
+							else
+								callback(result);
+						}
 					},
 					put: input => {
 						input._id = ObjectHash(input, {algorithm: 'sha1'});
