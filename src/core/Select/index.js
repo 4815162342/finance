@@ -5,7 +5,8 @@ class Select extends Component {
 		const {options, value} = this.props;
 		
 		return (
-			<select value={value} onChange={this.onChange}>
+			<select value={value} onChange={this.onChange} defaultValue="-1">
+				<option disabled children="Select" value="-1"/>
 				{options.map(this.renderOption)}
 			</select>
 		);
