@@ -1,3 +1,5 @@
+import {capitalize, trimWhitespace} from '../format';
+
 export const draggingClass = 'dragging-file';
 export const filetypeDelimiter = {
 	'text/tab-separated-values': '\t',
@@ -6,7 +8,7 @@ export const filetypeDelimiter = {
 
 export const requiredFieldsParse = {
 	date: a => new Date(a),
-	recipient: a => a,
+	recipient: a => capitalize(trimWhitespace(a)),
 	sender: a => a,
 	amount: a => parseInt(100*parseFloat(a.replace(/\$| /g, ''))),
 	note: a => a,

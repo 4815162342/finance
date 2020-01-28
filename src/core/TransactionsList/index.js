@@ -51,13 +51,17 @@ class TransactionsList extends Component {
 			'':
 			transaction.date.toISOString().substr(0, 10);
 		
+		const noteFormatted = transaction.note.length > 30?
+			transaction.note.substr(0, 30).concat('...'):
+			transaction.note;
+		
 		return (
 			<tr key={transaction._id}>
 				<td>{money(transaction.amount)}</td>
 				<td>{dateFormatted}</td>
 				<td>{transaction.sender}</td>
 				<td>{transaction.recipient}</td>
-				<td>{transaction.note.substr(0, 20)}</td>
+				<td>{noteFormatted}</td>
 				<td>{transaction._id.substr(0, 5)}</td>
 			</tr>
 		)

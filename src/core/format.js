@@ -6,5 +6,8 @@ export const money = amt => {
 	return prefix + '$' + Math.abs(parts[0]).toLocaleString() + '.' + parts[1];
 };
 
+// Remove superfluous space chars
+export const trimWhitespace = str => str.trim().replace(/ +/g, ' ');
+
 // Capitalize the first letter of every word
-export const capitalize = str => str.split(' ').map(el=>el[0].toUpperCase() + el.slice(1)).join(' ');
+export const capitalize = str => str? str.toLowerCase().split(' ').map(el=>el[0].toUpperCase() + el.slice(1)).join(' ') : str;
