@@ -1,0 +1,15 @@
+.transactions-list-wrapper {
+	display: flex;
+	justify-content: center;
+}
+
+.transactions-list {
+	border: 1px solid #878da1;
+	border-radius: 5px;
+}
+
+@media (prefers-color-scheme: dark) {
+	.transactions-list-wrapper {
+		color: #b0b7d1;
+	}
+}

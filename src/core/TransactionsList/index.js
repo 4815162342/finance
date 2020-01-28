@@ -1,5 +1,6 @@
 import React, {Component, Fragment} from 'react';
 import db from '../db/database';
+import './index.css';
 
 class TransactionsList extends Component {
 	state = {
@@ -23,16 +24,35 @@ class TransactionsList extends Component {
 	render() {
 		const {records} = this.state;
 		
-		return (
-			<div>
-				{records.map(this.renderTransaction)}
-			</div>
+		const table = (
+			<table className="transactions-list">
+				<thead>
+					<tr>
+						<th>Amount</th>
+						<th>Date</th>
+						<th>To</th>
+					</tr>
+				</thead>
+				<tbody children={records.map(this.renderTransaction)} />
+			</table>
 		);
+		
+		return (<div
+			className="transactions-list-wrapper"
+			children={records.length? table : null}	
+		/>);
 	}
 	
 	renderTransaction(transaction) {
+		if (isNaN(transaction.date)) return null;
+
 		return (
-			<div key={transaction._id}>{transaction.amount}</div>
+			<tr key={transaction._id}>
+				<td>{transaction.amount}</td>
+				<td>{transaction.date.toISOString().substr(0, 10)}</td>
+				<td>{transaction.recipient}</td>
+				<td>{transaction._id}</td>
+			</tr>
 		)
 	}
 }
