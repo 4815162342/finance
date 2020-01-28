@@ -131,7 +131,7 @@ class FileInput extends Component {
 		const {incomingData} = this.state;
 		
 		incomingData.forEach(file => {
-			const headerEntries = Object.entries(file.headersMapped);
+			const headersMapped = Object.entries(file.headersMapped);
 			
 			file.rows.forEach(row => {
 				const transaction = {
@@ -141,7 +141,7 @@ class FileInput extends Component {
 				row.split(file.delimiter).forEach((val, colIndex) => {
 					transaction.raw[file.headers[colIndex]] = val;
 					
-					const requiredField = headerEntries.find(el => parseInt(el[1]) === colIndex);
+					const requiredField = headersMapped.find(el => parseInt(el[1]) === colIndex);
 					if (requiredField)
 						transaction[requiredField[0].toLowerCase()] = requiredFieldsParse[requiredField[0]](val);
 				});
