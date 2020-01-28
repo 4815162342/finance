@@ -7,7 +7,7 @@ export const filetypeDelimiter = {
 export const requiredFieldsParse = {
 	Date: a => new Date(a),
 	Recipient: a => a,
-	Amount: a => parseFloat(a.replace(/\$| /g, '')),
+	Amount: a => parseInt(100*parseFloat(a.replace(/\$| /g, ''))),
 };
 export const requiredFieldsList = Object.keys(requiredFieldsParse);
 export const requiredFieldsMap = () => {
