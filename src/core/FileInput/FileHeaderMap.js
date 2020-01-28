@@ -22,7 +22,7 @@ class FileHeaderMap extends Component {
 			<div key={field}>
 				{field}:
 				<Select
-					options={file.headers}
+					options={file.headers.concat('N/A')}
 					onChange={onChangeSelect}
 					value={file.headersMapped[field]}
 				/>
