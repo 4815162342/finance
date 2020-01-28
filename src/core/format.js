@@ -5,3 +5,6 @@ export const money = amt => {
 	let prefix = (amt < 0) ? '- ' : '';
 	return prefix + '$' + Math.abs(parts[0]).toLocaleString() + '.' + parts[1];
 };
+
+// Capitalize the first letter of every word
+export const capitalize = str => str.split(' ').map(el=>el[0].toUpperCase() + el.slice(1)).join(' ');

@@ -1,5 +1,6 @@
-import React, {Component, Fragment} from 'react';
+import React, {Component} from 'react';
 import db from '../db/database';
+import {money} from '../format';
 import './index.css';
 
 class TransactionsList extends Component {
@@ -30,7 +31,9 @@ class TransactionsList extends Component {
 					<tr>
 						<th>Amount</th>
 						<th>Date</th>
+						<th>From</th>
 						<th>To</th>
+						<th>Note</th>
 					</tr>
 				</thead>
 				<tbody children={records.map(this.renderTransaction)} />
@@ -44,14 +47,18 @@ class TransactionsList extends Component {
 	}
 	
 	renderTransaction(transaction) {
-		if (isNaN(transaction.date)) return null;
-
+		const dateFormatted = !transaction.date || isNaN(transaction.date)?
+			'':
+			transaction.date.toISOString().substr(0, 10);
+		
 		return (
 			<tr key={transaction._id}>
-				<td>{transaction.amount}</td>
-				<td>{transaction.date.toISOString().substr(0, 10)}</td>
+				<td>{money(transaction.amount)}</td>
+				<td>{dateFormatted}</td>
+				<td>{transaction.sender}</td>
 				<td>{transaction.recipient}</td>
-				<td>{transaction._id}</td>
+				<td>{transaction.note.substr(0, 20)}</td>
+				<td>{transaction._id.substr(0, 5)}</td>
 			</tr>
 		)
 	}

@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import Database from '../db/';
 import FileHeaderMap from './FileHeaderMap'
-import {draggingClass, filetypeDelimiter, requiredFieldsMap, requiredFieldsParse} from './constants';
+import {draggingClass, filetypeDelimiter, requiredFieldsCopy, requiredFieldsParse} from './constants';
 import './index.css';
 
 let db;
@@ -58,7 +58,7 @@ class FileInput extends Component {
 				
 				incomingData.push({
 					headers,
-					headersMapped: requiredFieldsMap(),
+					headersMapped: {},
 					delimiter,
 					rows,
 					name: files[i].name,
@@ -137,13 +137,15 @@ class FileInput extends Component {
 				const transaction = {
 					importedOn: new Date(),
 					raw: {},
+					...requiredFieldsCopy(),
 				};
+				
 				row.split(file.delimiter).forEach((val, colIndex) => {
 					transaction.raw[file.headers[colIndex]] = val;
 					
 					const requiredField = headerEntries.find(el => parseInt(el[1]) === colIndex);
 					if (requiredField)
-						transaction[requiredField[0].toLowerCase()] = requiredFieldsParse[requiredField[0]](val);
+						transaction[requiredField[0]] = requiredFieldsParse[requiredField[0]](val);
 				});
 				
 				db.Transactions.put(transaction);
