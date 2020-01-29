@@ -5,12 +5,13 @@ import {capitalize} from '../format';
 
 class FileHeaderMap extends Component {
 	render() {
-		const {file} = this.props;
+		const {file, applyToAll} = this.props;
 		
 		return (
 			<div className="fileHeaderPicker">
 				<div>{file.name}</div>
 				{requiredFieldsList.map(this.renderSelect)}
+				<button onClick={() => applyToAll(file.headersMapped)} children="Apply to all"/>
 			</div>
 		);
 	}
@@ -30,7 +31,6 @@ class FileHeaderMap extends Component {
 			</div>
 		);
 	};
-
 }
 
 export default FileHeaderMap;

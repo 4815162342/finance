@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import db from '../db/database';
-import {money} from '../format';
+import {money, elipsesText, ymd} from '../format';
 import './index.css';
 
 class TransactionsList extends Component {
@@ -29,7 +29,7 @@ class TransactionsList extends Component {
 			<table className="transactions-list">
 				<thead>
 					<tr>
-						<th>Amount</th>
+						<th className="money">Amount</th>
 						<th>Date</th>
 						<th>From</th>
 						<th>To</th>
@@ -47,21 +47,13 @@ class TransactionsList extends Component {
 	}
 	
 	renderTransaction(transaction) {
-		const dateFormatted = !transaction.date || isNaN(transaction.date)?
-			'':
-			transaction.date.toISOString().substr(0, 10);
-		
-		const noteFormatted = transaction.note.length > 30?
-			transaction.note.substr(0, 30).concat('...'):
-			transaction.note;
-		
 		return (
 			<tr key={transaction._id}>
-				<td>{money(transaction.amount)}</td>
-				<td>{dateFormatted}</td>
+				<td className="money">{money(transaction.amount)}</td>
+				<td>{ymd(transaction.date)}</td>
 				<td>{transaction.sender}</td>
-				<td>{transaction.recipient}</td>
-				<td>{noteFormatted}</td>
+				<td>{elipsesText(transaction.recipient)}</td>
+				<td>{elipsesText(transaction.note)}</td>
 				<td>{transaction._id.substr(0, 5)}</td>
 			</tr>
 		)

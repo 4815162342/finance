@@ -2,6 +2,7 @@ import React, {Component, Fragment} from 'react';
 import Database from '../db/';
 import FileHeaderMap from './FileHeaderMap'
 import {draggingClass, filetypeDelimiter, requiredFieldsCopy, requiredFieldsParse} from './constants';
+import {parseCSV} from './parseCSV';
 import './index.css';
 
 let db;
@@ -53,14 +54,17 @@ class FileInput extends Component {
 			
 			const fr = new FileReader();
 			fr.onload = e => {
-				const rows = fr.result.split('\n');
-				const headers = rows.shift(1).split(delimiter).map(header => header.trim());
+				const headerEnd = fr.result.indexOf('\n');
+				const headers = fr.result.slice(0, headerEnd)
+					.replace(/"/g, '')
+					.split(delimiter)
+					.map(header => header.trim());
 				
 				incomingData.push({
 					headers,
 					headersMapped: {},
 					delimiter,
-					rows,
+					rows: fr.result.slice(headerEnd+1),
 					name: files[i].name,
 				});
 				this.setState({incomingData});
@@ -100,7 +104,7 @@ class FileInput extends Component {
 	
 	renderMapHeaders() {
 		const {incomingData} = this.state;
-		const numTrans = incomingData.reduce((acc, cur) => acc+cur.rows.length, 0)
+		//const numTrans = incomingData.reduce((acc, cur) => acc+cur.rows.length, 0)
 		
 		return (
 			<div>
@@ -110,11 +114,12 @@ class FileInput extends Component {
 							key={file.name}
 							file={file}
 							onChange={this.onChangeHeaderMap}
+							applyToAll={this.applyToAll}
 						/>
 					)}
 				</div>
 				<div>
-					<button className="btn" onClick={this.importRows}>Import {numTrans} transactions</button>
+					<button className="btn" onClick={this.importRows}>Import transactions</button>
 				</div>
 			</div>
 		);
@@ -133,26 +138,39 @@ class FileInput extends Component {
 		incomingData.forEach(file => {
 			const headerEntries = Object.entries(file.headersMapped);
 			
-			file.rows.forEach(row => {
-				const transaction = {
-					importedOn: new Date(),
-					raw: {},
-					...requiredFieldsCopy(),
-				};
-				
-				row.split(file.delimiter).forEach((val, colIndex) => {
-					transaction.raw[file.headers[colIndex]] = val;
+			parseCSV({
+				data: file.rows,
+				delimiter: file.delimiter,
+				onRowEnd: row => {
+					const transaction = {
+						raw: {},
+						...requiredFieldsCopy(),
+					};
 					
-					const requiredField = headerEntries.find(el => parseInt(el[1]) === colIndex);
-					if (requiredField)
-						transaction[requiredField[0]] = requiredFieldsParse[requiredField[0]](val);
-				});
-				
-				db.Transactions.put(transaction);
+					row.forEach((cell, colIndex) => {
+						transaction.raw[file.headers[colIndex]] = cell;
+						
+						const requiredField = headerEntries.find(el => parseInt(el[1]) === colIndex);
+						if (requiredField)
+							transaction[requiredField[0]] = requiredFieldsParse[requiredField[0]](cell);
+					});
+					
+					db.Transactions.put(transaction);
+				},
 			});
 		});
 		
 		this.setState({incomingData: []});
+	}
+	
+	applyToAll = newHeadersMapped => {
+		const {incomingData} = this.state;
+		const newState = [...incomingData].map(file => {
+			file.headersMapped = newHeadersMapped;
+			return file;
+		});
+		
+		this.setState({incomingData: newState});
 	}
 }
 

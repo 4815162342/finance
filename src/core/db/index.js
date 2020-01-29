@@ -32,6 +32,8 @@ export default class Database {
 					},
 					put: input => {
 						input._id = ObjectHash(input, {algorithm: 'sha1'});
+						input.importedOn = new Date();
+						
 						return this._db.transaction(ob, "readwrite").objectStore(ob).put(input);
 					}
 				}

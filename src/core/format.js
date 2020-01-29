@@ -11,3 +11,11 @@ export const trimWhitespace = str => str.trim().replace(/ +/g, ' ');
 
 // Capitalize the first letter of every word
 export const capitalize = str => str? str.toLowerCase().split(' ').map(el=>el[0].toUpperCase() + el.slice(1)).join(' ') : str;
+
+export const elipsesText = (str, max=30) => str.length > max?
+	str.substr(0, max).concat('...'):
+	str;
+
+export const ymd = date => (!date || isNaN(date))?
+	'':
+	date.toISOString().substr(0, 10);

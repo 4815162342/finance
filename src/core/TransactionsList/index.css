@@ -6,6 +6,10 @@
 .transactions-list {
 	border: 1px solid #878da1;
 	border-radius: 5px;
+	text-align: left;
+}
+.transactions-list .money {
+	text-align: center;
 }
 
 @media (prefers-color-scheme: dark) {

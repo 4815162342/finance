@@ -10,7 +10,7 @@ export const requiredFieldsParse = {
 	date: a => new Date(a),
 	recipient: a => capitalize(trimWhitespace(a)),
 	sender: a => a,
-	amount: a => parseInt(100*parseFloat(a.replace(/\$| /g, ''))),
+	amount: a => parseInt(100*parseFloat(a.replace(/\$| \,/g, ''))),
 	note: a => a,
 };
 export const requiredFieldsList = Object.keys(requiredFieldsParse);
