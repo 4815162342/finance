@@ -1,18 +1,23 @@
 import React, {Component} from 'react';
 import db from '../db/database';
+import Input from '../Input/';
 import {money, elipsesText, ymd} from '../format';
 import './index.css';
 
 class TransactionsList extends Component {
 	state = {
 		records: [],
+		viewCount: 100,
 	};
 	
 	componentDidMount() {
 		// This is a huge hack, I'm coming back to this
 		setTimeout(() => {
+			const {viewCount} = this.state;
+			
 			db.Transactions.get(
-				IDBKeyRange.bound('0', 'A'),
+				{amount: IDBKeyRange.bound(0, 1000)},
+				{count: viewCount},
 				records => this.setState({records})
 			)
 		}, 500);
@@ -23,27 +28,32 @@ class TransactionsList extends Component {
 	}
 
 	render() {
-		const {records} = this.state;
+		const {records, viewCount} = this.state;
 		
-		const table = (
-			<table className="transactions-list">
-				<thead>
-					<tr>
-						<th className="money">Amount</th>
-						<th>Date</th>
-						<th>From</th>
-						<th>To</th>
-						<th>Note</th>
-					</tr>
-				</thead>
-				<tbody children={records.map(this.renderTransaction)} />
-			</table>
+		if (!records.length) return null;
+		
+		return (
+			<div>
+				<div className="transactions-list-wrapper">
+					<table className="transactions-list">
+						<thead>
+							<tr>
+								<th className="money">Amount</th>
+								<th>Date</th>
+								<th>From</th>
+								<th>To</th>
+								<th>Note</th>
+							</tr>
+						</thead>
+						<tbody children={records.map(this.renderTransaction)} />
+					</table>
+				</div>
+				<Input
+					value={viewCount}
+					onChange={viewCount => this.setState({viewCount})}
+				/>
+			</div>
 		);
-		
-		return (<div
-			className="transactions-list-wrapper"
-			children={records.length? table : null}	
-		/>);
 	}
 	
 	renderTransaction(transaction) {
@@ -56,7 +66,7 @@ class TransactionsList extends Component {
 				<td>{elipsesText(transaction.note)}</td>
 				<td>{transaction._id.substr(0, 5)}</td>
 			</tr>
-		)
+		);
 	}
 }
 
