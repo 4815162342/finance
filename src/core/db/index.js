@@ -46,7 +46,10 @@ export default class Database {
 						input.importedOn = new Date();
 						
 						return this._db.transaction(ob.name, "readwrite").objectStore(ob.name).put(input);
-					}
+					},
+					update: input => {
+						return this._db.transaction(ob.name, "readwrite").objectStore(ob.name).put(input);
+					},
 				}
 			});
 		};

@@ -16,7 +16,8 @@ class TransactionsList extends Component {
 			const {viewCount} = this.state;
 			
 			db.Transactions.get(
-				{amount: IDBKeyRange.bound(0, 1000)},
+				//{amount: IDBKeyRange.bound(0, 1000)},
+				{amount: IDBKeyRange.lowerBound(7500)},
 				{count: viewCount},
 				records => this.setState({records})
 			)
@@ -56,7 +57,7 @@ class TransactionsList extends Component {
 		);
 	}
 	
-	renderTransaction(transaction) {
+	renderTransaction = transaction => {
 		return (
 			<tr key={transaction._id}>
 				<td className="money">{money(transaction.amount)}</td>
@@ -64,9 +65,20 @@ class TransactionsList extends Component {
 				<td>{transaction.sender}</td>
 				<td>{elipsesText(transaction.recipient)}</td>
 				<td>{elipsesText(transaction.note)}</td>
-				<td>{transaction._id.substr(0, 5)}</td>
+				<td>
+					<button
+						onClick={() => this.openNote(transaction)}
+						children={transaction._id.substr(0, 5)}
+					/>
+				</td>
 			</tr>
 		);
+	}
+	
+	openNote = transaction => {
+		const note = prompt('Enter new note', transaction.note);
+		if (note !== null)
+			db.Transactions.update({...transaction, note});
 	}
 }
 
