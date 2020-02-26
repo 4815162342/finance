@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
 import db from '../db/database';
 import Input from '../Input/';
-import {money, elipsesText, ymd} from '../format';
+import {money, elipsesText, ymd, plural} from '../format';
 import './index.css';
 
 class TransactionsList extends Component {
 	state = {
 		records: [],
-		viewCount: 100,
+		viewCount: 300,
+		selectedRows: [],
 	};
 	
 	componentDidMount() {
@@ -17,7 +18,7 @@ class TransactionsList extends Component {
 			
 			db.Transactions.get(
 				//{amount: IDBKeyRange.bound(0, 1000)},
-				{amount: IDBKeyRange.lowerBound(7500)},
+				{transactionDate: IDBKeyRange.lowerBound(new Date('2019-12-01'))},
 				{count: viewCount},
 				records => this.setState({records})
 			)
@@ -29,21 +30,39 @@ class TransactionsList extends Component {
 	}
 
 	render() {
-		const {records, viewCount} = this.state;
+		const {records, viewCount, selectedRows} = this.state;
 		
 		if (!records.length) return null;
 		
+		let buttonClasses = [];
+		if (!selectedRows.length) buttonClasses.push('no-display');
+		
 		return (
 			<div>
+				<div className="transactions-list-tools">
+					<button
+						onClick={this.onClickHide}
+						children={`Hide ${plural(selectedRows.length, 'transaction')}`}
+						className={buttonClasses.join(' ')}
+					/>
+				</div>
 				<div className="transactions-list-wrapper">
 					<table className="transactions-list">
 						<thead>
 							<tr>
+								<th>
+									<Input
+										type="checkbox"
+										checked={selectedRows.length === records.length}
+										onChange={this.toggleAllRows}
+									/>
+								</th>
 								<th className="money">Amount</th>
 								<th>Date</th>
 								<th>From</th>
 								<th>To</th>
 								<th>Note</th>
+								<th></th>
 							</tr>
 						</thead>
 						<tbody children={records.map(this.renderTransaction)} />
@@ -58,8 +77,21 @@ class TransactionsList extends Component {
 	}
 	
 	renderTransaction = transaction => {
+		const {selectedRows} = this.state;
+		
+		const isSelected = selectedRows.includes(transaction._id);
+		let rowClasses = [];
+		if (isSelected) rowClasses.push('selected');
+		
 		return (
-			<tr key={transaction._id}>
+			<tr key={transaction._id} className={rowClasses.join(' ')}>
+				<td>
+					<Input
+						type="checkbox"
+						checked={isSelected}
+						onChange={() => this.toggleRow(transaction._id)}
+					/>
+				</td>
 				<td className="money">{money(transaction.amount)}</td>
 				<td>{ymd(transaction.date)}</td>
 				<td>{transaction.sender}</td>
@@ -79,6 +111,32 @@ class TransactionsList extends Component {
 		const note = prompt('Enter new note', transaction.note);
 		if (note !== null)
 			db.Transactions.update({...transaction, note});
+	}
+	
+	toggleAllRows = () => {
+		const {records, selectedRows} = this.state;
+		
+		const newState = records.length === selectedRows.length?
+			[]:
+			records.map(r=>r._id);
+		
+		this.setState({'selectedRows': newState});
+	}
+	
+	toggleRow = _id => {
+		const {selectedRows} = this.state;
+		
+		let newSelectedRows = selectedRows.includes(_id)?
+			selectedRows.filter(a => a !== _id):
+			[...selectedRows, _id];
+		
+		this.setState({'selectedRows': newSelectedRows});
+	}
+	
+	onClickHide = () => {
+		const {selectedRows} = this.state;
+		
+		selectedRows.forEach(_id => db.Transactions.update(_id, {$set:{'hidden': true}}))
 	}
 }
 

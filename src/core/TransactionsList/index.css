@@ -1,3 +1,9 @@
+.transactions-list-tools {
+	display: flex;
+	justify-content: center;
+	padding: 10px 0;
+}
+
 .transactions-list-wrapper {
 	display: flex;
 	justify-content: center;
@@ -7,7 +13,14 @@
 	border: 1px solid #878da1;
 	border-radius: 5px;
 	text-align: left;
+	border-collapse: collapse;
 }
+
+.transactions-list td, .transactions-list th {padding: 10px;}
+
+tr.selected {background-color: #7c8082;}
+.transactions-list tr:hover {background-color: #7c8082;}
+
 .transactions-list .money {
 	text-align: center;
 }
@@ -16,4 +29,7 @@
 	.transactions-list-wrapper {
 		color: #b0b7d1;
 	}
+	
+	tr.selected {background-color: #232323;}
+	.transactions-list tr:hover {background-color: #232323;}
 }

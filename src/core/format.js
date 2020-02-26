@@ -19,3 +19,5 @@ export const elipsesText = (str, max=30) => str.length > max?
 export const ymd = date => (!date || isNaN(date))?
 	'':
 	date.toISOString().substr(0, 10);
+
+export const plural = (num, string) => num===1?`${num} ${string}`:`${num} ${string}s`;

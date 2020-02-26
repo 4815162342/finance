@@ -7,7 +7,7 @@ export const filetypeDelimiter = {
 };
 
 export const requiredFieldsParse = {
-	date: a => new Date(a),
+	date: a => new Date(a.substr(0, 10)),
 	recipient: a => capitalize(trimWhitespace(a)),
 	sender: a => a,
 	amount: a => parseInt(100*parseFloat(a.replace(/\$| |,/g, ''))),

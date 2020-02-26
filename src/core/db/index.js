@@ -39,7 +39,9 @@ export default class Database {
 							}
 							else
 								callback(result);
-						}
+						};
+						
+						getRequest.onerror = console.log;
 					},
 					put: input => {
 						input._id = ObjectHash(input, {algorithm: 'sha1'});
@@ -47,8 +49,16 @@ export default class Database {
 						
 						return this._db.transaction(ob.name, "readwrite").objectStore(ob.name).put(input);
 					},
-					update: input => {
-						return this._db.transaction(ob.name, "readwrite").objectStore(ob.name).put(input);
+					update: (_id, operation) => {
+						const obStore = this._db.transaction(ob.name, "readwrite").objectStore(ob.name);
+						const getRequest = obStore.get(_id);
+						
+						// TODO: clean this all up...
+						// Also, it's currently hard-coded to only set hidden to true
+						getRequest.onsuccess = () => {
+							getRequest.result.hidden = true;
+							obStore.put(getRequest.result)
+						}
 					},
 				}
 			});
