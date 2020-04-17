@@ -34,17 +34,25 @@ class TransactionsList extends Component {
 		
 		if (!records.length) return null;
 		
-		let buttonClasses = [];
-		if (!selectedRows.length) buttonClasses.push('no-display');
+		let selectedRowInfoClasses = ['transactions-list-tools'];
+		if (!selectedRows.length) {
+			selectedRowInfoClasses.push('no-display');
+		}
+		
+		const selectedSum = selectedRows.reduce((acc, cur) => {
+			return acc + records.find(r => r._id === cur).amount || 0;
+		}, 0);
 		
 		return (
 			<div>
-				<div className="transactions-list-tools">
-					<button
+				<div className={selectedRowInfoClasses.join(' ')}>
+					<div><button
 						onClick={this.onClickHide}
 						children={`Hide ${plural(selectedRows.length, 'transaction')}`}
-						className={buttonClasses.join(' ')}
-					/>
+					/></div>
+					<div>Sum: <b children={money(selectedSum)}/></div>
+					<div>Count: <b children={selectedRows.length}/></div>
+					<div>Average: <b children={money(selectedSum/selectedRows.length)}/></div>
 				</div>
 				<div className="transactions-list-wrapper">
 					<table className="transactions-list">
@@ -110,7 +118,7 @@ class TransactionsList extends Component {
 	openNote = transaction => {
 		const note = prompt('Enter new note', transaction.note);
 		if (note !== null)
-			db.Transactions.update({...transaction, note});
+			db.Transactions.update(transaction._id, {$set:{note}})
 	}
 	
 	toggleAllRows = () => {

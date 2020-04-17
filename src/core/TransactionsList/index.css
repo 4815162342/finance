@@ -1,7 +1,10 @@
 .transactions-list-tools {
 	display: flex;
-	justify-content: center;
+	justify-content: space-between;
 	padding: 10px 0;
+	position: sticky;
+	top: 0;
+	background: white;
 }
 
 .transactions-list-wrapper {

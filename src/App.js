@@ -30,11 +30,13 @@ class App extends Component {
 		
 		return (
 			<div className={appClasses.join(' ')}>
-				<FileInput
-					onDragEnter={this.onDragEnter}
-					onDragLeave={this.onDragLeave}
-				/>
-				<TransactionsList />
+				<div className="wrapper">
+					<FileInput
+						onDragEnter={this.onDragEnter}
+						onDragLeave={this.onDragLeave}
+					/>
+					<TransactionsList />
+				</div>
 			</div>
 		);
 	}
