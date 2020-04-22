@@ -24,7 +24,9 @@ export default class Database {
 					get: (qry, options, callback) => {
 						const indexName = Object.keys(qry)[0];
 						const objStore = this._db.transaction(ob.name, "readonly").objectStore(ob.name);
-						if (!objStore.indexNames.contains(indexName)) return;
+						if (!objStore.indexNames.contains(indexName)) {
+							throw new Error(`unknown field ${indexName}`);
+						}
 						
 						const getRequest = objStore.index(indexName).getAll(qry[indexName], options.count || 5);
 						
@@ -44,8 +46,8 @@ export default class Database {
 						getRequest.onerror = console.log;
 					},
 					put: input => {
-						input._id = ObjectHash(input, {algorithm: 'sha1'});
-						input.importedOn = new Date();
+						if (!input._id) input._id = ObjectHash(input, {algorithm: 'sha1'});
+						if (!input.importedOn) input.importedOn = new Date();
 						
 						return this._db.transaction(ob.name, "readwrite").objectStore(ob.name).put(input);
 					},
@@ -53,10 +55,13 @@ export default class Database {
 						const obStore = this._db.transaction(ob.name, "readwrite").objectStore(ob.name);
 						const getRequest = obStore.get(_id);
 						
-						// TODO: clean this all up...
-						// Also, it's currently hard-coded to only set hidden to true
+						// TODO: Obviously this is a HUGE hack. Clean this all up.
 						getRequest.onsuccess = () => {
-							getRequest.result.hidden = true;
+							if (operation.$set.hidden !== undefined)
+								getRequest.result.hidden = operation.$set.hidden;
+							else if (operation.$set.note)
+								getRequest.result.note = operation.$set.note;
+							
 							obStore.put(getRequest.result)
 						}
 					},

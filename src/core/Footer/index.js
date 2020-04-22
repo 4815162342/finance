@@ -18,18 +18,23 @@ class Footer extends PureComponent {
 	}
 	
 	export() {
-		return db.Transactions.get({amount: 1}, {}, console.log);
-		const file = new Blob([JSON.stringify()], {type: 'json'});
-		const a = document.createElement("a");
-		const url = URL.createObjectURL(file);
-		a.href = url;
-		a.download = 'finances';
-		document.body.appendChild(a);
-		a.click();
-		setTimeout(function() {
-		    document.body.removeChild(a);
-		    window.URL.revokeObjectURL(url);
-		}, 0);
+		db.Transactions.get({
+			amount: IDBKeyRange.lowerBound(0)
+		}, {
+			count: 10
+		}, data => {
+			const file = new Blob([JSON.stringify(data)], {type: 'json'});
+			const a = document.createElement("a");
+			const url = URL.createObjectURL(file);
+			a.href = url;
+			a.download = 'finances.json';
+			document.body.appendChild(a);
+			a.click();
+			setTimeout(function() {
+			    document.body.removeChild(a);
+			    window.URL.revokeObjectURL(url);
+			}, 0);
+		});
 	}
 }
 

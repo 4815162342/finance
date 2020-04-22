@@ -1,11 +1,9 @@
 import React, {Component, Fragment} from 'react';
-import Database from '../db/';
+import db from '../db/database';
 import FileHeaderMap from './FileHeaderMap'
 import {draggingClass, filetypeDelimiter, requiredFieldsCopy, requiredFieldsParse} from './constants';
 import {parseCSV} from './parseCSV';
 import './index.css';
-
-let db;
 
 class FileInput extends Component {
 	state = {
@@ -15,13 +13,8 @@ class FileInput extends Component {
 	componentDidMount() {
 		window.addEventListener('dragenter', this.handleDragEnter);
 		window.addEventListener('dragleave', this.handleDragLeave);
+		window.addEventListener('dragover', this.handleDragOver)
 		window.addEventListener('drop', this.handleDrop);
-		
-		db = new Database();
-	}
-	
-	componentWillUnmount() {
-		db.close();
 	}
 	
 	handleDragEnter = () => {
@@ -30,6 +23,10 @@ class FileInput extends Component {
 	
 	handleDragLeave = () => {
 		this.props.onDragLeave(draggingClass);
+	}
+	
+	handleDragOver = e => {
+		e.preventDefault();
 	}
 	
 	// User drops file
