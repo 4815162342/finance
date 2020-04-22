@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import FileInput from './core/FileInput/';
 import TransactionsList from './core/TransactionsList/';
+import Footer from './core/Footer';
 import './App.css';
 import './darkMode.css';
 
@@ -36,6 +37,7 @@ class App extends Component {
 						onDragLeave={this.onDragLeave}
 					/>
 					<TransactionsList />
+					<Footer />
 				</div>
 			</div>
 		);
