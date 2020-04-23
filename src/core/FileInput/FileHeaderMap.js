@@ -1,7 +1,10 @@
 import React, {Component} from 'react';
 import Select from '../Select/';
-import {requiredFieldsList} from './constants';
+import Input from '../Input/';
+import {requiredFields} from './constants';
 import {capitalize} from '../format';
+
+const fieldsArr = Object.keys(requiredFields);
 
 class FileHeaderMap extends Component {
 	render() {
@@ -10,26 +13,31 @@ class FileHeaderMap extends Component {
 		return (
 			<div className="fileHeaderPicker">
 				<div>{file.name}</div>
-				{requiredFieldsList.map(this.renderSelect)}
+				{fieldsArr.map(this.renderInput)}
 				<button onClick={() => applyToAll(file.headersMapped)} children="Apply to all"/>
 			</div>
 		);
 	}
 	
-	renderSelect = field => {
+	renderInput = field => {
 		const {file, onChange} = this.props;
-		const onChangeSelect = newValue => onChange(field, file.name, newValue);
+		const {inputComponent} = requiredFields[field];
 		
-		return (
-			<div key={field}>
-				{capitalize(field)}:
-				<Select
-					options={file.headers.concat('N/A')}
-					onChange={onChangeSelect}
-					value={file.headersMapped[field]}
-				/>
-			</div>
-		);
+		let onChangeInput, comp;
+		
+		if (inputComponent === 'Select') {
+			comp = <Select
+				options={file.headers.concat('N/A')}
+				onChange={onChangeInput}
+				value={file.headersMapped[field]}
+			/>;
+			onChangeInput = newValue => onChange(field, file.name, newValue);
+		} else {
+			comp = <Input onChange={onChangeInput} value={file.headersMapped[field]}/>;
+			onChangeInput = e => onChange(field, file.name, e.target.value);
+		}
+		
+		return (<div key={field}>{capitalize(field)}: {comp}</div>);
 	};
 }
 

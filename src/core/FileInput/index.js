@@ -1,7 +1,7 @@
 import React, {Component, Fragment} from 'react';
 import db from '../db/database';
 import FileHeaderMap from './FileHeaderMap'
-import {draggingClass, filetypeDelimiter, requiredFieldsCopy, requiredFieldsParse} from './constants';
+import {draggingClass, filetypeDelimiter, requiredFieldsCopy, requiredFields} from './constants';
 import {parseCSV} from './parseCSV';
 import './index.css';
 
@@ -149,7 +149,7 @@ class FileInput extends Component {
 						
 						const requiredField = headerEntries.find(el => parseInt(el[1]) === colIndex);
 						if (requiredField)
-							transaction[requiredField[0]] = requiredFieldsParse[requiredField[0]](cell);
+							transaction[requiredField[0]] = requiredFields[requiredField[0]].parse(cell);
 					});
 					
 					db.Transactions.put(transaction);

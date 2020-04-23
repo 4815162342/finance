@@ -6,16 +6,35 @@ export const filetypeDelimiter = {
 	'text/csv': ',',
 };
 
-export const requiredFieldsParse = {
-	date: a => new Date(a.substr(0, 10)),
-	recipient: a => capitalize(trimWhitespace(a)),
-	sender: a => a,
-	amount: a => parseInt(100*parseFloat(a.replace(/\$| |,/g, ''))),
-	note: a => a,
+export const requiredFields = {
+	date: {
+		parse: a => new Date(a.substr(0, 10)),
+		inputComponent: 'Select',
+	},
+	recipient: {
+		parse: a => capitalize(trimWhitespace(a)),
+		inputComponent: 'Select',
+	},
+	sender: {
+		parse: a => a,
+		inputComponent: 'Select',
+	},
+	amount: {
+		parse: a => parseInt(100*parseFloat(a.replace(/\$| |,/g, ''))),
+		inputComponent: 'Select',
+	},
+	note: {
+		parse: a => a,
+		inputComponent: 'Select',
+	},
+	source: {
+		parse: a => a,
+		inputComponent: 'input',
+	}
 };
-export const requiredFieldsList = Object.keys(requiredFieldsParse);
+
 export const requiredFieldsCopy = () => {
-	const newMap = {...requiredFieldsParse};
+	const newMap = {...requiredFields};
 	for (let field in newMap) newMap[field] = '';
 	return newMap;
 };
