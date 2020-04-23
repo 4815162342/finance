@@ -1,10 +1,12 @@
 import React, {Component} from 'react';
 
 class Input extends Component {
+	static defaultProps = {
+		type: "text",
+	}
+	
 	render() {
 		let {value, placeholder, type, checked} = this.props;
-		
-		if (!type) type = "text";
 		
 		return (
 			<input
