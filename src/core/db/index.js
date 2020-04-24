@@ -11,6 +11,10 @@ class ObjectStore {
 		this._indexes = indexes;
 		this._db = db;
 	}
+	// DB often isn't initialized when ObSt is created
+	_setDb (db) {
+		this._db = db;
+	};
 	get (qry, options, callback) {
 		const indexName = Object.keys(qry)[0];
 		const objStore = this._db.transaction(this.name, "readonly").objectStore(this.name);
@@ -66,13 +70,17 @@ export default class Database {
 		this.name = schema.name;
 		this._objectStoreSchema = schema.objectStoreSchema;
 		
+		this._objectStoreSchema.forEach(ob => {
+			this[ob.name] = new ObjectStore(ob.name, ob.indexes, null);
+		});
+		
 		const dbRequest = indexedDB.open(this.name);
 		dbRequest.onerror = console.log;
 		dbRequest.onsuccess = () => {
 			this._db = dbRequest.result;
 			
 			this._objectStoreSchema.forEach(ob => {
-				this[ob.name] = new ObjectStore(ob.name, ob.indexes, this._db);
+				this[ob.name]._setDb(this._db);
 			});
 		};
 		dbRequest.onupgradeneeded = () => {

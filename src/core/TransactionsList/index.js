@@ -33,9 +33,9 @@ class TransactionsList extends Component {
 	//
 	componentDidMount() {
 		// This is a huge hack, I'm coming back to this
+		
 		setTimeout(() => {
 			const {viewCount} = this.state;
-			
 			db.Transactions.get(
 				//{amount: IDBKeyRange.bound(0, 1000)},
 				{transactionDate: IDBKeyRange.lowerBound(new Date('2019-12-01'))},
