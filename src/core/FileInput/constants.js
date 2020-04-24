@@ -9,28 +9,19 @@ export const filetypeDelimiter = {
 export const requiredFields = {
 	date: {
 		parse: a => new Date(a.substr(0, 10)),
-		inputComponent: 'Select',
 	},
 	recipient: {
 		parse: a => capitalize(trimWhitespace(a)),
-		inputComponent: 'Select',
 	},
 	sender: {
 		parse: a => a,
-		inputComponent: 'Select',
 	},
 	amount: {
 		parse: a => parseInt(100*parseFloat(a.replace(/\$| |,/g, ''))),
-		inputComponent: 'Select',
 	},
 	note: {
 		parse: a => a,
-		inputComponent: 'Select',
 	},
-	source: {
-		parse: a => a,
-		inputComponent: 'input',
-	}
 };
 
 export const requiredFieldsCopy = () => {

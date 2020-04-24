@@ -63,6 +63,7 @@ class FileInput extends Component {
 					delimiter,
 					rows: fr.result.slice(headerEnd+1),
 					name: files[i].name,
+					source: '',
 				});
 				this.setState({incomingData});
 			};
@@ -125,7 +126,11 @@ class FileInput extends Component {
 	onChangeHeaderMap = (field, fileName, newValue) => {
 		const {incomingData} = this.state;
 		const newState = [...incomingData];
-		newState.find(file => file.name === fileName).headersMapped[field] = newValue;
+		
+		const existingFile = newState.find(file => file.name === fileName);
+		if (field === 'source') existingFile.source = newValue;
+		else existingFile.headersMapped[field] = newValue;
+		
 		this.setState({incomingData: newState});
 	};
 	
@@ -141,6 +146,7 @@ class FileInput extends Component {
 				onRowEnd: row => {
 					const transaction = {
 						raw: {},
+						source: file.source,
 						...requiredFieldsCopy(),
 					};
 					

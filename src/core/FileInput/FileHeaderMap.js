@@ -14,6 +14,7 @@ class FileHeaderMap extends Component {
 			<div className="fileHeaderPicker">
 				<div>{file.name}</div>
 				{fieldsArr.map(this.renderInput)}
+				{this.renderSource()}
 				<button onClick={() => applyToAll(file.headersMapped)} children="Apply to all"/>
 			</div>
 		);
@@ -21,24 +22,25 @@ class FileHeaderMap extends Component {
 	
 	renderInput = field => {
 		const {file, onChange} = this.props;
-		const {inputComponent} = requiredFields[field];
 		
-		let onChangeInput, comp;
-		
-		if (inputComponent === 'Select') {
-			comp = <Select
+		return (<div key={field}>
+			{capitalize(field)}:
+			<Select
 				options={file.headers.concat('N/A')}
-				onChange={onChangeInput}
+				onChange={newValue => onChange(field, file.name, newValue)}
 				value={file.headersMapped[field]}
-			/>;
-			onChangeInput = newValue => onChange(field, file.name, newValue);
-		} else {
-			comp = <Input onChange={onChangeInput} value={file.headersMapped[field]}/>;
-			onChangeInput = e => onChange(field, file.name, e.target.value);
-		}
-		
-		return (<div key={field}>{capitalize(field)}: {comp}</div>);
+			/>
+		</div>);
 	};
+	
+	renderSource = () => {
+		const {file, onChange} = this.props;
+		
+		return (<div>
+			Source:
+			<Input onChange={newValue => onChange('source', file.name, newValue)} value={file.source}/>
+		</div>)
+	}
 }
 
 export default FileHeaderMap;
