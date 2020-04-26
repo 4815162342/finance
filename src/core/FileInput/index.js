@@ -1,4 +1,5 @@
 import React, {Component, Fragment} from 'react';
+import ObjectHash from 'object-hash';
 import db from '../db/database';
 import FileHeaderMap from './FileHeaderMap'
 import {draggingClass, filetypeDelimiter, requiredFieldsCopy, requiredFields} from './constants';
@@ -157,6 +158,8 @@ class FileInput extends Component {
 						if (requiredField)
 							transaction[requiredField[0]] = requiredFields[requiredField[0]].parse(cell);
 					});
+					
+					transaction._id = ObjectHash(transaction.raw, {algorithm: 'sha1'});
 					
 					db.Transactions.put(transaction);
 				},
