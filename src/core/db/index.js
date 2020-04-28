@@ -61,7 +61,7 @@ class ObjectStore {
 			
 			obStore.put(getRequest.result);
 			
-			this._executeBus('update', input);
+			this._executeBus('update', getRequest.result);
 		}
 	};
 	_executeBus(type, data) {

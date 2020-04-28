@@ -33,15 +33,16 @@ class TransactionsList extends Component {
 	//
 	componentDidMount() {
 		// This is a huge hack, I'm coming back to this
-		const {viewCount, records} = this.state;
+		const {viewCount} = this.state;
 		
 		function putListener(newRecord) {
 			const newRecords = [...this.state.records, newRecord];
 			this.setState({records: newRecords});
 		}
 		
-		function updateListener(updatedRecord) {
-			
+		const updateListener = (updatedRecord) => {
+			const newRecords = this.state.records.map(r => r._id === updatedRecord._id? updatedRecord: r);
+			this.setState({records: newRecords});
 		}
 		
 		db.Transactions.registerListener({
