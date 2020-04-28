@@ -169,19 +169,19 @@ class TransactionsList extends Component {
 		
 		return (
 			<Fragment>
-				<td><Input
+				<td className="transactions-list-sender"><Input
 					value={editingRow.sender}
 					onChange={val => this.editTransaction('sender', val)}
 					onSubmit={onSubmit}
 					onEscape={onEscape}
 				/></td>
-				<td><Input
+				<td className="transactions-list-recipient"><Input
 					value={editingRow.recipient}
 					onChange={val => this.editTransaction('recipient', val)}
 					onSubmit={onSubmit}
 					onEscape={onEscape}
 				/></td>
-				<td><Input
+				<td className="transactions-list-note"><Input
 					value={editingRow.note}
 					onChange={val => this.editTransaction('note', val)}
 					onSubmit={onSubmit}
@@ -194,9 +194,9 @@ class TransactionsList extends Component {
 	renderDefaultRow = transaction => {
 		return (
 			<Fragment>
-				<td children={transaction.sender} />
-				<td children={elipsesText(transaction.recipient)} />
-				<td children={elipsesText(transaction.note)} />
+				<td children={transaction.sender} className="transactions-list-sender"/>
+				<td children={elipsesText(transaction.recipient)} className="transactions-list-recipient"/>
+				<td children={elipsesText(transaction.note)} className="transactions-list-note"/>
 			</Fragment>
 		);
 	}

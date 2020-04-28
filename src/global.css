@@ -7,4 +7,9 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 }
 
+input {
+	font: inherit;
+	font-size: 16px !important;
+}
+
 .dragging-file {opacity: 0.5;}
