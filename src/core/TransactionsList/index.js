@@ -165,6 +165,7 @@ class TransactionsList extends Component {
 		const {editingRow} = this.state;
 		
 		const onSubmit = () => this.toggleEdit(transaction);
+		const onEscape = () => this.setState({editingRow: {}});
 		
 		return (
 			<Fragment>
@@ -172,16 +173,19 @@ class TransactionsList extends Component {
 					value={editingRow.sender}
 					onChange={val => this.editTransaction('sender', val)}
 					onSubmit={onSubmit}
+					onEscape={onEscape}
 				/></td>
 				<td><Input
 					value={editingRow.recipient}
 					onChange={val => this.editTransaction('recipient', val)}
 					onSubmit={onSubmit}
+					onEscape={onEscape}
 				/></td>
 				<td><Input
 					value={editingRow.note}
 					onChange={val => this.editTransaction('note', val)}
 					onSubmit={onSubmit}
+					onEscape={onEscape}
 				/></td>
 			</Fragment>
 		);

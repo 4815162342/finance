@@ -4,6 +4,7 @@ class Input extends Component {
 	static defaultProps = {
 		type: "text",
 		onSubmit: a => a,
+		onEscape: a => a,
 	}
 	
 	render() {
@@ -22,7 +23,8 @@ class Input extends Component {
 	}
 	
 	onKeyDown = e => {
-		if (e.key === "Enter") this.props.onSubmit();
+		if (e.key === "Enter") return this.props.onSubmit();
+		if (e.key === "Escape") return this.props.onEscape();
 	}
 	
 	onChange = e => {
