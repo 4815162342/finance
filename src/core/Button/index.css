@@ -1,0 +1,11 @@
+.btn-emoji {
+	font-size: 25px;
+	border: none;
+	-webkit-appearance: none;
+	background: none;
+	cursor: pointer;
+}
+
+.btn-emoji:focus {
+	outline: none;
+}

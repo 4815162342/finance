@@ -19,7 +19,7 @@
 	border-collapse: collapse;
 }
 
-.transactions-list td, .transactions-list th {padding: 10px;}
+.transactions-list td, .transactions-list th {padding: 5px;}
 
 tr.selected {background-color: #7c8082;}
 .transactions-list tr:hover {background-color: #7c8082;}

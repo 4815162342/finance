@@ -1,7 +1,8 @@
 import React, { useEffect, useState, Component } from 'react';
 
 import db from '../db/database';
-import Input from '../Input/';
+import Input from '../Input';
+import Button from '../Button';
 import {money, elipsesText, ymd, plural} from '../format';
 import './index.css';
 
@@ -10,7 +11,7 @@ class TransactionsList extends Component {
 		records: [],
 		viewCount: 300,
 		selectedRows: [],
-		editingRow: null,
+		editingRow: {},
 	};
 	
 	// example = () => {
@@ -58,7 +59,7 @@ class TransactionsList extends Component {
 		setTimeout(() => {
 			db.Transactions.get(
 				//{amount: IDBKeyRange.bound(0, 1000)},
-				{transactionDate: IDBKeyRange.lowerBound(new Date('2016-12-01'))},
+				{transactionDate: IDBKeyRange.lowerBound(new Date('2019-12-01'))},
 				{count: viewCount},
 				records => {
 					// Another hack - should be handled in DB query
@@ -129,11 +130,32 @@ class TransactionsList extends Component {
 	
 	renderTransaction = transaction => {
 		const {selectedRows, editingRow} = this.state;
-				
+		
 		const isSelected = selectedRows.includes(transaction._id);
-		const isEditing = editingRow === transaction._id;
+		const isEditing = editingRow._id === transaction._id;
 		let rowClasses = [];
 		if (isSelected) rowClasses.push('selected');
+		
+		let sender, recipient, note;
+		if (isEditing) {
+			sender = (<Input
+				value={editingRow.sender}
+				onChange={val => this.editTransaction('sender', val)}
+			/>);
+			recipient = (<Input
+				value={editingRow.recipient}
+				onChange={val => this.editTransaction('recipient', val)}
+			/>);
+			note = (<Input
+				value={editingRow.note}
+				onChange={val => this.editTransaction('note', val)}
+			/>);
+		} else {
+			sender = transaction.sender;
+			recipient = elipsesText(transaction.recipient);
+			note = elipsesText(transaction.note);
+		}
+		
 		
 		return (
 			<tr key={transaction._id} className={rowClasses.join(' ')}>
@@ -146,23 +168,33 @@ class TransactionsList extends Component {
 				</td>
 				<td className="money">{money(transaction.amount)}</td>
 				<td>{ymd(transaction.date)}</td>
-				<td>{transaction.sender}</td>
-				<td>{elipsesText(transaction.recipient)}</td>
-				<td>{elipsesText(transaction.note)}</td>
-				<td>
-					<button
-						onClick={() => this.openNote(transaction)}
-						children={isEditing? 'Done':'Edit'}
+				<td>{sender}</td>
+				<td>{recipient}</td>
+				<td>{note}</td>
+				<td onClick={() => this.toggleEdit(transaction)}>
+					<Button
+						children={isEditing? '✅':'✏️'}
+						type="emoji"
 					/>
 				</td>
 			</tr>
 		);
 	}
 	
-	openNote = transaction => {
-		const note = prompt('Enter new note', transaction.note);
-		if (note !== null)
-			db.Transactions.update(transaction._id, {$set:{note}})
+	toggleEdit = transaction => {
+		const {editingRow} = this.state;
+		this.setState({editingRow: editingRow._id === transaction._id? {}: transaction});
+		// TODO - save changes to DB
+		// db.Transactions.update(transaction._id, {$set:{note}})
+	};
+	
+	editTransaction = (field, val) => {
+		const {editingRow} = this.state;
+		
+		const newState = {...editingRow};
+		newState[field] = val;
+		
+		this.setState({editingRow: newState});
 	}
 	
 	toggleAllRows = () => {
