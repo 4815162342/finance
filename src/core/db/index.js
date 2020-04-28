@@ -52,16 +52,10 @@ class ObjectStore {
 		const obStore = this._db.transaction(this.name, "readwrite").objectStore(this.name);
 		const getRequest = obStore.get(_id);
 		
-		// TODO: Obviously this is a HUGE hack. Clean this all up.
 		getRequest.onsuccess = () => {
-			if (operation.$set.hidden !== undefined)
-				getRequest.result.hidden = operation.$set.hidden;
-			else if (operation.$set.note)
-				getRequest.result.note = operation.$set.note;
-			
-			obStore.put(getRequest.result);
-			
-			this._executeBus('update', getRequest.result);
+			const newRecord = {...getRequest.result, ...operation.$set};
+			obStore.put(newRecord);
+			this._executeBus('update', newRecord);
 		}
 	};
 	_executeBus(type, data) {

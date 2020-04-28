@@ -11,6 +11,9 @@ class Footer extends PureComponent {
 				<div>
 				Made by <Touchable href="https://www.linkedin.com/in/adamcarysanders/" target="_blank">Adam Sanders</Touchable> in NYC, 2020</div>
 				<div>
+					<Touchable href="https://github.com/4815162342/finance" target="_blank" children="GitHub repo" />
+				</div>
+				<div>
 					<Touchable onClick={this.export}>Export</Touchable> your data
 				</div>
 			</div>

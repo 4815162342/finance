@@ -184,8 +184,8 @@ class TransactionsList extends Component {
 	toggleEdit = transaction => {
 		const {editingRow} = this.state;
 		this.setState({editingRow: editingRow._id === transaction._id? {}: transaction});
-		// TODO - save changes to DB
-		// db.Transactions.update(transaction._id, {$set:{note}})
+		
+		db.Transactions.update(transaction._id, {$set: editingRow})
 	};
 	
 	editTransaction = (field, val) => {
