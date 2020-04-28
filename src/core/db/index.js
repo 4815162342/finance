@@ -5,6 +5,7 @@ class ObjectStore {
 	_os = null;
 	_indexes = [];
 	_db = null;
+	_eventBus = [];
 	
 	constructor(name, indexes, db) {
 		this.name = name;
@@ -43,7 +44,9 @@ class ObjectStore {
 		if (!input._id) input._id = ObjectHash(input, {algorithm: 'sha1'});
 		if (!input.importedOn) input.importedOn = new Date();
 		
-		return this._db.transaction(this.name, "readwrite").objectStore(this.name).put(input);
+		this._db.transaction(this.name, "readwrite").objectStore(this.name).put(input);
+		
+		this._executeBus('put', input);
 	};
 	update (_id, operation) {
 		const obStore = this._db.transaction(this.name, "readwrite").objectStore(this.name);
@@ -56,8 +59,22 @@ class ObjectStore {
 			else if (operation.$set.note)
 				getRequest.result.note = operation.$set.note;
 			
-			obStore.put(getRequest.result)
+			obStore.put(getRequest.result);
+			
+			this._executeBus('update', input);
 		}
+	};
+	_executeBus(type, data) {
+		this._eventBus.forEach(listener => {
+			if (listener.type !== type) return;
+			listener.fn(data);
+		})
+	};
+	registerListener(listener) {
+		this._eventBus.push(listener);
+	};
+	deregisterListener({name}) {
+		this._eventBus = this._eventBus.filter(l => l.name === name);
 	}
 }
 

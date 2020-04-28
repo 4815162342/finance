@@ -33,14 +33,38 @@ class TransactionsList extends Component {
 	//
 	componentDidMount() {
 		// This is a huge hack, I'm coming back to this
+		const {viewCount, records} = this.state;
+		
+		function putListener(newRecord) {
+			const newRecords = [...this.state.records, newRecord];
+			this.setState({records: newRecords});
+		}
+		
+		function updateListener(updatedRecord) {
+			
+		}
+		
+		db.Transactions.registerListener({
+			type: 'put',
+			fn: putListener,
+			name: 'transaction_list_put',
+		});
+		
+		db.Transactions.registerListener({
+			type: 'update',
+			fn: updateListener,
+			name: 'transaction_list_update',
+		});
 		
 		setTimeout(() => {
-			const {viewCount} = this.state;
 			db.Transactions.get(
 				//{amount: IDBKeyRange.bound(0, 1000)},
 				{transactionDate: IDBKeyRange.lowerBound(new Date('2019-12-01'))},
 				{count: viewCount},
-				records => this.setState({records})
+				records => {
+					// Another hack - should be handled in DB query
+					this.setState({records: records.filter(r=>!r.hidden)})
+				}
 			)
 		}, 500);
 	}
@@ -106,7 +130,7 @@ class TransactionsList extends Component {
 	
 	renderTransaction = transaction => {
 		const {selectedRows} = this.state;
-		
+				
 		const isSelected = selectedRows.includes(transaction._id);
 		let rowClasses = [];
 		if (isSelected) rowClasses.push('selected');
