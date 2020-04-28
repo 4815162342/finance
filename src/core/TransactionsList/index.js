@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
 import db from '../db/database';
 import Input from '../Input';
@@ -133,29 +133,11 @@ class TransactionsList extends Component {
 		
 		const isSelected = selectedRows.includes(transaction._id);
 		const isEditing = editingRow._id === transaction._id;
+		
 		let rowClasses = [];
 		if (isSelected) rowClasses.push('selected');
 		
-		let sender, recipient, note;
-		if (isEditing) {
-			sender = (<Input
-				value={editingRow.sender}
-				onChange={val => this.editTransaction('sender', val)}
-			/>);
-			recipient = (<Input
-				value={editingRow.recipient}
-				onChange={val => this.editTransaction('recipient', val)}
-			/>);
-			note = (<Input
-				value={editingRow.note}
-				onChange={val => this.editTransaction('note', val)}
-			/>);
-		} else {
-			sender = transaction.sender;
-			recipient = elipsesText(transaction.recipient);
-			note = elipsesText(transaction.note);
-		}
-		
+		const renderRowFn = isEditing? this.renderEditRow : this.renderDefaultRow;
 		
 		return (
 			<tr key={transaction._id} className={rowClasses.join(' ')}>
@@ -168,9 +150,7 @@ class TransactionsList extends Component {
 				</td>
 				<td className="money">{money(transaction.amount)}</td>
 				<td>{ymd(transaction.date)}</td>
-				<td>{sender}</td>
-				<td>{recipient}</td>
-				<td>{note}</td>
+				{renderRowFn(transaction)}
 				<td onClick={() => this.toggleEdit(transaction)}>
 					<Button
 						children={isEditing? '✅':'✏️'}
@@ -181,11 +161,47 @@ class TransactionsList extends Component {
 		);
 	}
 	
+	renderEditRow = transaction => {
+		const {editingRow} = this.state;
+		
+		const onSubmit = () => this.toggleEdit(transaction);
+		
+		return (
+			<Fragment>
+				<td><Input
+					value={editingRow.sender}
+					onChange={val => this.editTransaction('sender', val)}
+					onSubmit={onSubmit}
+				/></td>
+				<td><Input
+					value={editingRow.recipient}
+					onChange={val => this.editTransaction('recipient', val)}
+					onSubmit={onSubmit}
+				/></td>
+				<td><Input
+					value={editingRow.note}
+					onChange={val => this.editTransaction('note', val)}
+					onSubmit={onSubmit}
+				/></td>
+			</Fragment>
+		);
+	};
+	
+	renderDefaultRow = transaction => {
+		return (
+			<Fragment>
+				<td children={transaction.sender} />
+				<td children={elipsesText(transaction.recipient)} />
+				<td children={elipsesText(transaction.note)} />
+			</Fragment>
+		);
+	}
+	
 	toggleEdit = transaction => {
 		const {editingRow} = this.state;
 		this.setState({editingRow: editingRow._id === transaction._id? {}: transaction});
 		
-		db.Transactions.update(transaction._id, {$set: editingRow})
+		db.Transactions.update(transaction._id, {$set: editingRow});
 	};
 	
 	editTransaction = (field, val) => {
