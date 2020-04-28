@@ -104,6 +104,7 @@ class FileInput extends Component {
 	renderMapHeaders() {
 		const {incomingData} = this.state;
 		//const numTrans = incomingData.reduce((acc, cur) => acc+cur.rows.length, 0)
+		const applyToAll = incomingData.length > 1 ? this.applyToAll : null;
 		
 		return (
 			<div>
@@ -113,7 +114,7 @@ class FileInput extends Component {
 							key={file.name}
 							file={file}
 							onChange={this.onChangeHeaderMap}
-							applyToAll={this.applyToAll}
+							applyToAll={applyToAll}
 						/>
 					)}
 				</div>

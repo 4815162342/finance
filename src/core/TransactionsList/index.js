@@ -10,6 +10,7 @@ class TransactionsList extends Component {
 		records: [],
 		viewCount: 300,
 		selectedRows: [],
+		editingRow: null,
 	};
 	
 	// example = () => {
@@ -35,32 +36,29 @@ class TransactionsList extends Component {
 		// This is a huge hack, I'm coming back to this
 		const {viewCount} = this.state;
 		
-		function putListener(newRecord) {
-			const newRecords = [...this.state.records, newRecord];
-			this.setState({records: newRecords});
-		}
-		
-		const updateListener = (updatedRecord) => {
-			const newRecords = this.state.records.map(r => r._id === updatedRecord._id? updatedRecord: r);
-			this.setState({records: newRecords});
-		}
-		
 		db.Transactions.registerListener({
 			type: 'put',
-			fn: putListener,
+			fn: newRecord => {
+				console.log(this.state, newRecord)
+				const newRecords = [...this.state.records, newRecord];
+				this.setState({records: newRecords});
+			},
 			name: 'transaction_list_put',
 		});
 		
 		db.Transactions.registerListener({
 			type: 'update',
-			fn: updateListener,
+			fn: updatedRecord => {
+				const newRecords = this.state.records.map(r => r._id === updatedRecord._id? updatedRecord: r);
+				this.setState({records: newRecords});
+			},
 			name: 'transaction_list_update',
 		});
 		
 		setTimeout(() => {
 			db.Transactions.get(
 				//{amount: IDBKeyRange.bound(0, 1000)},
-				{transactionDate: IDBKeyRange.lowerBound(new Date('2019-12-01'))},
+				{transactionDate: IDBKeyRange.lowerBound(new Date('2016-12-01'))},
 				{count: viewCount},
 				records => {
 					// Another hack - should be handled in DB query
@@ -130,9 +128,10 @@ class TransactionsList extends Component {
 	}
 	
 	renderTransaction = transaction => {
-		const {selectedRows} = this.state;
+		const {selectedRows, editingRow} = this.state;
 				
 		const isSelected = selectedRows.includes(transaction._id);
+		const isEditing = editingRow === transaction._id;
 		let rowClasses = [];
 		if (isSelected) rowClasses.push('selected');
 		
@@ -153,7 +152,7 @@ class TransactionsList extends Component {
 				<td>
 					<button
 						onClick={() => this.openNote(transaction)}
-						children={transaction._id.substr(0, 5)}
+						children={isEditing? 'Done':'Edit'}
 					/>
 				</td>
 			</tr>
