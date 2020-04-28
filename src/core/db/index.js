@@ -5,6 +5,7 @@ class ObjectStore {
 	_os = null;
 	_indexes = [];
 	_db = null;
+	_eventBus = [];
 	
 	constructor(name, indexes, db) {
 		this.name = name;
@@ -43,21 +44,31 @@ class ObjectStore {
 		if (!input._id) input._id = ObjectHash(input, {algorithm: 'sha1'});
 		if (!input.importedOn) input.importedOn = new Date();
 		
-		return this._db.transaction(this.name, "readwrite").objectStore(this.name).put(input);
+		this._db.transaction(this.name, "readwrite").objectStore(this.name).put(input);
+		
+		this._executeBus('put', input);
 	};
 	update (_id, operation) {
 		const obStore = this._db.transaction(this.name, "readwrite").objectStore(this.name);
 		const getRequest = obStore.get(_id);
 		
-		// TODO: Obviously this is a HUGE hack. Clean this all up.
 		getRequest.onsuccess = () => {
-			if (operation.$set.hidden !== undefined)
-				getRequest.result.hidden = operation.$set.hidden;
-			else if (operation.$set.note)
-				getRequest.result.note = operation.$set.note;
-			
-			obStore.put(getRequest.result)
+			const newRecord = {...getRequest.result, ...operation.$set};
+			obStore.put(newRecord);
+			this._executeBus('update', newRecord);
 		}
+	};
+	_executeBus(type, data) {
+		this._eventBus.forEach(listener => {
+			if (listener.type !== type) return;
+			listener.fn(data);
+		})
+	};
+	registerListener(listener) {
+		this._eventBus.push(listener);
+	};
+	deregisterListener({name}) {
+		this._eventBus = this._eventBus.filter(l => l.name === name);
 	}
 }
 

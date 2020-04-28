@@ -9,13 +9,16 @@ const fieldsArr = Object.keys(requiredFields);
 class FileHeaderMap extends Component {
 	render() {
 		const {file, applyToAll} = this.props;
+		const btn = applyToAll?
+			<button onClick={() => applyToAll(file.headersMapped)} children="Apply to all"/>:
+			null;
 		
 		return (
 			<div className="fileHeaderPicker">
 				<div>{file.name}</div>
 				{fieldsArr.map(this.renderInput)}
 				{this.renderSource()}
-				<button onClick={() => applyToAll(file.headersMapped)} children="Apply to all"/>
+				{btn}
 			</div>
 		);
 	}

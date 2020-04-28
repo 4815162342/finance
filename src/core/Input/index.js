@@ -3,6 +3,7 @@ import React, {Component} from 'react';
 class Input extends Component {
 	static defaultProps = {
 		type: "text",
+		onSubmit: a => a,
 	}
 	
 	render() {
@@ -12,11 +13,16 @@ class Input extends Component {
 			<input
 				value={value}
 				onChange={this.onChange}
+				onKeyDown={this.onKeyDown}
 				placeholder={placeholder}
 				type={type}
 				checked={checked}
 			/>
 		);
+	}
+	
+	onKeyDown = e => {
+		if (e.key === "Enter") this.props.onSubmit();
 	}
 	
 	onChange = e => {

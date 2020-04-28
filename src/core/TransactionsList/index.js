@@ -1,7 +1,8 @@
-import React, { useEffect, useState, Component } from 'react';
+import React, { Component, Fragment } from 'react';
 
 import db from '../db/database';
-import Input from '../Input/';
+import Input from '../Input';
+import Button from '../Button';
 import {money, elipsesText, ymd, plural} from '../format';
 import './index.css';
 
@@ -10,6 +11,7 @@ class TransactionsList extends Component {
 		records: [],
 		viewCount: 300,
 		selectedRows: [],
+		editingRow: {},
 	};
 	
 	// example = () => {
@@ -33,14 +35,36 @@ class TransactionsList extends Component {
 	//
 	componentDidMount() {
 		// This is a huge hack, I'm coming back to this
+		const {viewCount} = this.state;
+		
+		db.Transactions.registerListener({
+			type: 'put',
+			fn: newRecord => {
+				console.log(this.state, newRecord)
+				const newRecords = [...this.state.records, newRecord];
+				this.setState({records: newRecords});
+			},
+			name: 'transaction_list_put',
+		});
+		
+		db.Transactions.registerListener({
+			type: 'update',
+			fn: updatedRecord => {
+				const newRecords = this.state.records.map(r => r._id === updatedRecord._id? updatedRecord: r);
+				this.setState({records: newRecords});
+			},
+			name: 'transaction_list_update',
+		});
 		
 		setTimeout(() => {
-			const {viewCount} = this.state;
 			db.Transactions.get(
 				//{amount: IDBKeyRange.bound(0, 1000)},
 				{transactionDate: IDBKeyRange.lowerBound(new Date('2019-12-01'))},
 				{count: viewCount},
-				records => this.setState({records})
+				records => {
+					// Another hack - should be handled in DB query
+					this.setState({records: records.filter(r=>!r.hidden)})
+				}
 			)
 		}, 500);
 	}
@@ -105,11 +129,15 @@ class TransactionsList extends Component {
 	}
 	
 	renderTransaction = transaction => {
-		const {selectedRows} = this.state;
+		const {selectedRows, editingRow} = this.state;
 		
 		const isSelected = selectedRows.includes(transaction._id);
+		const isEditing = editingRow._id === transaction._id;
+		
 		let rowClasses = [];
 		if (isSelected) rowClasses.push('selected');
+		
+		const renderRowFn = isEditing? this.renderEditRow : this.renderDefaultRow;
 		
 		return (
 			<tr key={transaction._id} className={rowClasses.join(' ')}>
@@ -122,23 +150,67 @@ class TransactionsList extends Component {
 				</td>
 				<td className="money">{money(transaction.amount)}</td>
 				<td>{ymd(transaction.date)}</td>
-				<td>{transaction.sender}</td>
-				<td>{elipsesText(transaction.recipient)}</td>
-				<td>{elipsesText(transaction.note)}</td>
-				<td>
-					<button
-						onClick={() => this.openNote(transaction)}
-						children={transaction._id.substr(0, 5)}
+				{renderRowFn(transaction)}
+				<td onClick={() => this.toggleEdit(transaction)}>
+					<Button
+						children={isEditing? '✅':'✏️'}
+						type="emoji"
 					/>
 				</td>
 			</tr>
 		);
 	}
 	
-	openNote = transaction => {
-		const note = prompt('Enter new note', transaction.note);
-		if (note !== null)
-			db.Transactions.update(transaction._id, {$set:{note}})
+	renderEditRow = transaction => {
+		const {editingRow} = this.state;
+		
+		const onSubmit = () => this.toggleEdit(transaction);
+		
+		return (
+			<Fragment>
+				<td><Input
+					value={editingRow.sender}
+					onChange={val => this.editTransaction('sender', val)}
+					onSubmit={onSubmit}
+				/></td>
+				<td><Input
+					value={editingRow.recipient}
+					onChange={val => this.editTransaction('recipient', val)}
+					onSubmit={onSubmit}
+				/></td>
+				<td><Input
+					value={editingRow.note}
+					onChange={val => this.editTransaction('note', val)}
+					onSubmit={onSubmit}
+				/></td>
+			</Fragment>
+		);
+	};
+	
+	renderDefaultRow = transaction => {
+		return (
+			<Fragment>
+				<td children={transaction.sender} />
+				<td children={elipsesText(transaction.recipient)} />
+				<td children={elipsesText(transaction.note)} />
+			</Fragment>
+		);
+	}
+	
+	toggleEdit = transaction => {
+		const {editingRow} = this.state;
+		this.setState({editingRow: editingRow._id === transaction._id? {}: transaction});
+		
+		db.Transactions.update(transaction._id, {$set: editingRow});
+	};
+	
+	editTransaction = (field, val) => {
+		const {editingRow} = this.state;
+		
+		const newState = {...editingRow};
+		newState[field] = val;
+		
+		this.setState({editingRow: newState});
 	}
 	
 	toggleAllRows = () => {
