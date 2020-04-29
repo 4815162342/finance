@@ -45,8 +45,7 @@ class TransactionsList extends Component {
 			name: 'transaction_list_update',
 		});
 		
-		// This is a huge hack, I'm coming back to this
-		setTimeout(this.queryRecords, 500);
+		this.queryRecords()
 	};
 	
 	queryRecords = () => {
@@ -57,15 +56,11 @@ class TransactionsList extends Component {
 		
 		db.Transactions.get(
 			qry,
-			{
-				limit: viewCount,
-				sort: sortDirection,
-			},
-			records => {
-				// Another hack - should be handled in DB query
-				this.setState({records: records.filter(r=>!r.hidden)})
-			}
-		)
+			{limit: viewCount, sort: sortDirection}
+		).then(records => {
+			// Another hack - should be handled in DB query
+			this.setState({records: records.filter(r=>!r.hidden)})
+		});
 	};
 	
 	componentWillUnmount() {
