@@ -30,7 +30,6 @@ class TransactionsList extends Component {
 		db.Transactions.registerListener({
 			type: 'put',
 			fn: newRecord => {
-				console.log(this.state, newRecord)
 				const newRecords = [...this.state.records, newRecord];
 				this.setState({records: newRecords});
 			},

@@ -51,9 +51,11 @@ class ObjectStore {
 		if (!input._id) input._id = ObjectHash(input, {algorithm: 'sha1'});
 		if (!input.importedOn) input.importedOn = new Date();
 		
-		this._db.transaction(this.name, "readwrite").objectStore(this.name).put(input);
+		const putRequest = this._db.transaction(this.name, "readwrite").objectStore(this.name).put(input);
 		
-		this._executeBus('put', input);
+		putRequest.onsuccess = () => {
+			this._executeBus('put', input);
+		}
 	};
 	update (_id, operation) {
 		const obStore = this._db.transaction(this.name, "readwrite").objectStore(this.name);
