@@ -2,9 +2,27 @@ import React, { Component, Fragment } from 'react';
 
 import db from '../db/database';
 import Input from '../Input';
+import Touchable from '../Touchable';
 import Button from '../Button';
-import {money, elipsesText, ymd, plural} from '../format';
+import {money, elipsesText, ymd, plural, capitalize} from '../format';
 import './index.css';
+
+const headers = [{
+	name: 'amount',
+	sortable: true,
+}, {
+	name: 'date',
+	sortable: true,
+}, {
+	name: 'sender',
+	sortable: true,
+}, {
+	name: 'recipient',
+	sortable: true,
+}, {
+	name: 'note',
+	sortable: false,
+}];
 
 class TransactionsList extends Component {
 	state = {
@@ -12,31 +30,11 @@ class TransactionsList extends Component {
 		viewCount: 300,
 		selectedRows: [],
 		editingRow: {},
+		sortField: 'date',
+		sortDirection: -1,
 	};
 	
-	// example = () => {
-	// 	const [count, setCount] = useState(0);
-	//
-	// 	// Similar to componentDidMount and componentDidUpdate:
-	// 	useEffect(() => {
-	// 	// Update the document title using the browser API
-	// 		document.title = `You clicked ${count} times`;
-	// 	});
-	//
-	// 	return (
-	// 		<div>
-	// 			<p>You clicked {count} times</p>
-	// 			<button onClick={() => setCount(count + 1)}>
-	// 				Click me
-	// 			</button>
-	// 		</div>
-	// 	);
-	// }
-	//
 	componentDidMount() {
-		// This is a huge hack, I'm coming back to this
-		const {viewCount} = this.state;
-		
 		db.Transactions.registerListener({
 			type: 'put',
 			fn: newRecord => {
@@ -56,27 +54,63 @@ class TransactionsList extends Component {
 			name: 'transaction_list_update',
 		});
 		
-		setTimeout(() => {
-			db.Transactions.get(
-				//{amount: IDBKeyRange.bound(0, 1000)},
-				{transactionDate: IDBKeyRange.lowerBound(new Date('2019-12-01'))},
-				{count: viewCount},
-				records => {
-					// Another hack - should be handled in DB query
-					this.setState({records: records.filter(r=>!r.hidden)})
-				}
-			)
-		}, 500);
-	}
+		// This is a huge hack, I'm coming back to this
+		setTimeout(this.queryRecords, 500);
+	};
+	
+	queryRecords = () => {
+		const {viewCount, sortField, sortDirection} = this.state;
+		
+		const qry = {};
+		qry[sortField] = IDBKeyRange.lowerBound(0);
+		
+		db.Transactions.get(
+			qry,
+			{count: viewCount},
+			records => {
+				// Another hack - should be handled in DB query
+				this.setState({records: records.filter(r=>!r.hidden)})
+			}
+		)
+	};
 	
 	componentWillUnmount() {
 		db.close();
+	}
+	
+	componentDidUpdate(prevProps, prevState) {
+		if (
+			prevState.sortDirection !== this.state.sortDirection ||
+			prevState.sortField !== this.state.sortField ||
+			prevState.viewCount !== this.state.viewCount
+		)
+			this.queryRecords();
 	}
 
 	render() {
 		const {records, viewCount, selectedRows} = this.state;
 		
 		if (!records.length) return null;
+		
+		return (
+			<div>
+				{this.renderTools()}
+				<div className="transactions-list-wrapper">
+					<table className="transactions-list">
+						{this.renderThead()}
+						<tbody children={records.map(this.renderTransaction)} />
+					</table>
+				</div>
+				<Input
+					value={viewCount}
+					onChange={viewCount => this.setState({viewCount})}
+				/>
+			</div>
+		);
+	}
+	
+	renderTools = () => {
+		const {selectedRows, records} = this.state;
 		
 		let selectedRowInfoClasses = ['transactions-list-tools'];
 		if (!selectedRows.length) {
@@ -88,44 +122,66 @@ class TransactionsList extends Component {
 		}, 0);
 		
 		return (
-			<div>
-				<div className={selectedRowInfoClasses.join(' ')}>
-					<div><button
-						onClick={this.onClickHide}
-						children={`Hide ${plural(selectedRows.length, 'transaction')}`}
-					/></div>
-					<div>Sum: <b children={money(selectedSum)}/></div>
-					<div>Count: <b children={selectedRows.length}/></div>
-					<div>Average: <b children={money(selectedSum/selectedRows.length)}/></div>
-				</div>
-				<div className="transactions-list-wrapper">
-					<table className="transactions-list">
-						<thead>
-							<tr>
-								<th>
-									<Input
-										type="checkbox"
-										checked={selectedRows.length === records.length}
-										onChange={this.toggleAllRows}
-									/>
-								</th>
-								<th className="money">Amount</th>
-								<th>Date</th>
-								<th>From</th>
-								<th>To</th>
-								<th>Note</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody children={records.map(this.renderTransaction)} />
-					</table>
-				</div>
-				<Input
-					value={viewCount}
-					onChange={viewCount => this.setState({viewCount})}
-				/>
+			<div className={selectedRowInfoClasses.join(' ')}>
+				<div><button
+					onClick={this.onClickHide}
+					children={`Hide ${plural(selectedRows.length, 'transaction')}`}
+				/></div>
+				<div>Sum: <b children={money(selectedSum)}/></div>
+				<div>Count: <b children={selectedRows.length}/></div>
+				<div>Average: <b children={money(selectedSum/selectedRows.length)}/></div>
 			</div>
 		);
+	};
+	
+	renderThead = () => {
+		const {selectedRows, records} = this.state;
+		
+		return (
+			<thead>
+				<tr>
+					<th>
+						<Input
+							type="checkbox"
+							checked={selectedRows.length === records.length}
+							onChange={this.toggleAllRows}
+						/>
+					</th>
+					{headers.map(this.renderTh)}
+					<th></th>
+				</tr>
+			</thead>
+		);
+	};
+	
+	renderTh = header => {
+		const {sortField, sortDirection} = this.state;
+		
+		let children = capitalize(header.name);
+		if (sortField === header.name) {
+			children += sortDirection === 1? ' ▾' : ' ▴';
+		}
+		
+		return (
+			<th className={`transactions-list-${header.name}`} key={header.name}>
+				{header.sortable?
+					<Touchable onClick={() => this.toggleSort(header.name)} children={children}/>:
+					children
+				}
+				
+			</th>
+		);
+	}
+	
+	toggleSort = newField => {
+		const {sortField, sortDirection} = this.state;
+		
+		const newDirection = sortField === newField? -1 * sortDirection : -1;
+		
+		this.setState({
+			sortField: newField,
+			sortDirection: newDirection,
+		});
 	}
 	
 	renderTransaction = transaction => {
@@ -148,8 +204,8 @@ class TransactionsList extends Component {
 						onChange={() => this.toggleRow(transaction._id)}
 					/>
 				</td>
-				<td className="money">{money(transaction.amount)}</td>
-				<td>{ymd(transaction.date)}</td>
+				<td className="transactions-list-amount">{money(transaction.amount)}</td>
+				<td className="transactions-list-date">{ymd(transaction.date)}</td>
 				{renderRowFn(transaction)}
 				<td onClick={() => this.toggleEdit(transaction)}>
 					<Button
@@ -203,9 +259,12 @@ class TransactionsList extends Component {
 	
 	toggleEdit = transaction => {
 		const {editingRow} = this.state;
-		this.setState({editingRow: editingRow._id === transaction._id? {}: transaction});
 		
-		db.Transactions.update(transaction._id, {$set: editingRow});
+		const clickedSave = editingRow._id === transaction._id;
+		this.setState({editingRow: clickedSave? {}: transaction});
+		
+		if (clickedSave)
+			db.Transactions.update(transaction._id, {$set: editingRow});
 	};
 	
 	editTransaction = (field, val) => {

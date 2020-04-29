@@ -87,11 +87,11 @@ class FileInput extends Component {
 					type="file"
 					onChange={this.handleFileInput}
 					accept=".csv,.tsv"
-					className="inputFileDrop"
+					className="input-file-drop"
 					ref={this.hiddenInput}
 					multiple={true}
 				/>
-				<div onClick={this.handleClickDrop} className="divFileDrop">
+				<div onClick={this.handleClickDrop} className="div-file-drop">
 					<div>Drop files here</div>
 					<div>Or</div>
 					<div>Click to upload</div>

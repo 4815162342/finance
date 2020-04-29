@@ -20,7 +20,7 @@ class ObjectStore {
 		const indexName = Object.keys(qry)[0];
 		const objStore = this._db.transaction(this.name, "readonly").objectStore(this.name);
 		if (!objStore.indexNames.contains(indexName)) {
-			throw new Error(`unknown field ${indexName}`);
+			throw new Error(`Unknown index '${indexName}'`);
 		}
 		
 		const getRequest = objStore.index(indexName).getAll(qry[indexName], options.count || 5000);
@@ -28,6 +28,7 @@ class ObjectStore {
 		const result = [];
 		getRequest.onsuccess = e => {
 			const cursor = e.target.result;
+			console.log(e.target)
 			
 			if (cursor) {
 				callback(cursor);
@@ -76,16 +77,18 @@ export default class Database {
 	name = "";
 	_db = null;
 	_objectStoreSchema = [];
+	_version = 0;
 	
 	constructor(schema) {
 		this.name = schema.name;
 		this._objectStoreSchema = schema.objectStoreSchema;
+		this._version = schema.version;
 		
 		this._objectStoreSchema.forEach(ob => {
 			this[ob.name] = new ObjectStore(ob.name, ob.indexes, null);
 		});
 		
-		const dbRequest = indexedDB.open(this.name);
+		const dbRequest = indexedDB.open(this.name, this._version);
 		dbRequest.onerror = console.log;
 		dbRequest.onsuccess = () => {
 			this._db = dbRequest.result;
@@ -94,12 +97,18 @@ export default class Database {
 				this[ob.name]._setDb(this._db);
 			});
 		};
-		dbRequest.onupgradeneeded = () => {
+		dbRequest.onupgradeneeded = (event) => {
 			this._db = dbRequest.result;
 			this._objectStoreSchema.forEach(ob => {
-				let objStore = this._db.createObjectStore(ob.name, {keyPath: "_id"});
+				let objStore;
+				
+				if (this._db.objectStoreNames.contains(ob.name))
+					objStore = dbRequest.transaction.objectStore(ob.name);
+				else
+					objStore = this._db.createObjectStore(ob.name, {keyPath: "_id"});
 				
 				ob.indexes.forEach(index => {
+					if (objStore.indexNames.contains(index.name)) return;
 					objStore.createIndex(index.name, index.path, {unique: !!index.isUnique});
 				});
 			})

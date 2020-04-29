@@ -13,3 +13,9 @@ input {
 }
 
 .dragging-file {opacity: 0.5;}
+
+@media (prefers-color-scheme: dark) {
+	body {
+		color: #b0b7d1;
+	}
+}

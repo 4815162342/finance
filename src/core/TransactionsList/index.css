@@ -22,19 +22,13 @@
 .transactions-list td, .transactions-list th {padding: 5px;}
 .transactions-list-sender, .transactions-list-recipient {width: 200px;}
 .transactions-list-note {width: 250px;}
+.transactions-list-date {width: 115px;}
+.transactions-list-amount {text-align: center; width: 100px;}
 
 tr.selected {background-color: #7c8082;}
-.transactions-list tr:hover {background-color: #7c8082;}
-
-.transactions-list .money {
-	text-align: center;
-}
+.transactions-list tbody tr:hover {background-color: #7c8082;}
 
 @media (prefers-color-scheme: dark) {
-	.transactions-list-wrapper {
-		color: #b0b7d1;
-	}
-	
 	tr.selected {background-color: #232323;}
-	.transactions-list tr:hover {background-color: #232323;}
+	.transactions-list tbody tr:hover {background-color: #232323;}
 }
