@@ -14,7 +14,7 @@ class FileHeaderMap extends Component {
 			null;
 		
 		return (
-			<div className="fileHeaderPicker">
+			<div className="file-header-picker">
 				<div>{file.name}</div>
 				{fieldsArr.map(this.renderInput)}
 				{this.renderSource()}
