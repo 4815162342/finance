@@ -5,34 +5,26 @@ import Input from '../Input';
 import Touchable from '../Touchable';
 import Button from '../Button';
 import {money, elipsesText, ymd, plural, capitalize} from '../format';
+import transConst from './constants';
 import './index.css';
 
-const headers = [{
-	name: 'amount',
-	sortable: true,
-}, {
-	name: 'date',
-	sortable: true,
-}, {
-	name: 'sender',
-	sortable: true,
-}, {
-	name: 'recipient',
-	sortable: true,
-}, {
-	name: 'note',
-	sortable: false,
-}];
-
 class TransactionsList extends Component {
-	state = {
-		records: [],
-		viewCount: 300,
-		selectedRows: [],
-		editingRow: {},
-		sortField: 'date',
-		sortDirection: -1,
-	};
+	constructor(props) {
+		super(props);
+		
+		const sortField = localStorage.getItem(transConst.storageKeys.field) || 'date';
+		let sortDirection = localStorage.getItem(transConst.storageKeys.direction) || -1;
+		sortDirection = parseInt(sortDirection);
+		
+		this.state = {
+			records: [],
+			viewCount: 300,
+			selectedRows: [],
+			editingRow: {},
+			sortField,
+			sortDirection,
+		};
+	}
 	
 	componentDidMount() {
 		db.Transactions.registerListener({
@@ -88,6 +80,9 @@ class TransactionsList extends Component {
 			prevState.viewCount !== this.state.viewCount
 		)
 			this.queryRecords();
+		
+		localStorage.setItem(transConst.storageKeys.field, this.state.sortField)
+		localStorage.setItem(transConst.storageKeys.direction, this.state.sortDirection)
 	}
 
 	render() {
@@ -150,7 +145,7 @@ class TransactionsList extends Component {
 							onChange={this.toggleAllRows}
 						/>
 					</th>
-					{headers.map(this.renderTh)}
+					{transConst.headers.map(this.renderTh)}
 					<th></th>
 				</tr>
 			</thead>
