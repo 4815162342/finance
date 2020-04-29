@@ -91,7 +91,7 @@ class TransactionsList extends Component {
 	}
 
 	render() {
-		const {records, viewCount, selectedRows} = this.state;
+		const {records, viewCount} = this.state;
 		
 		if (!records.length) return null;
 		
@@ -162,7 +162,7 @@ class TransactionsList extends Component {
 		
 		let children = capitalize(header.name);
 		if (sortField === header.name) {
-			children += sortDirection === 1? ' ▾' : ' ▴';
+			children += sortDirection === 1? ' ▴' : ' ▾';
 		}
 		
 		return (
