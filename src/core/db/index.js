@@ -17,23 +17,29 @@ class ObjectStore {
 		this._db = db;
 	};
 	get (qry, options, callback) {
+		if (!options.sort) options.sort = -1;
+		if (!options.limit) options.limit = 5000;
+		
 		const indexName = Object.keys(qry)[0];
 		const objStore = this._db.transaction(this.name, "readonly").objectStore(this.name);
 		if (!objStore.indexNames.contains(indexName)) {
 			throw new Error(`Unknown index '${indexName}'`);
 		}
 		
-		const getRequest = objStore.index(indexName).getAll(qry[indexName], options.count || 5000);
+		const direction = options.sort === -1 ? "prev" : "next";
+		const getRequest = objStore.index(indexName).openCursor(qry[indexName], direction);
 		
 		const result = [];
 		getRequest.onsuccess = e => {
 			const cursor = e.target.result;
-			console.log(e.target)
 			
 			if (cursor) {
-				callback(cursor);
-				//result.push(cursor.value);
-				//cursor.continue();
+				result.push(cursor.value);
+				
+				if (result.length < options.limit)
+					cursor.continue();
+				else
+					callback(result);
 			}
 			else
 				callback(result);

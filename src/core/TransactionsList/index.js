@@ -66,7 +66,10 @@ class TransactionsList extends Component {
 		
 		db.Transactions.get(
 			qry,
-			{count: viewCount},
+			{
+				limit: viewCount,
+				sort: sortDirection,
+			},
 			records => {
 				// Another hack - should be handled in DB query
 				this.setState({records: records.filter(r=>!r.hidden)})
