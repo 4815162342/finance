@@ -1,4 +1,4 @@
-import React, {Component, Fragment} from 'react';
+import React, {Component} from 'react';
 import ObjectHash from 'object-hash';
 import db from '../db/database';
 import FileHeaderMap from './FileHeaderMap'
@@ -9,6 +9,7 @@ import './index.css';
 class FileInput extends Component {
 	state = {
 		incomingData: [],
+		showTest: true,
 	};
 	
 	componentDidMount() {
@@ -18,12 +19,12 @@ class FileInput extends Component {
 		window.addEventListener('drop', this.handleDrop);
 	}
 	
-	handleDragEnter = () => {
+	handleDragEnter = e => {
 		this.props.onDragEnter(draggingClass);
 	}
 	
-	handleDragLeave = () => {
-		this.props.onDragLeave(draggingClass);
+	handleDragLeave = e => {
+		if (!e.x && !e.y) this.props.onDragLeave(draggingClass);
 	}
 	
 	handleDragOver = e => {
@@ -79,10 +80,22 @@ class FileInput extends Component {
 	hiddenInput = React.createRef();
 	
 	render() {
-		const {incomingData} = this.state;
+		const {incomingData, showTest} = this.state;
 		
 		return (
-			<Fragment>
+			<div>
+				<div className="file-drop-container">
+					{this.renderUserFileInput()}
+					{showTest? this.renderTestData() : null}
+				</div>
+				{incomingData.length? this.renderMapHeaders(): null}
+			</div>
+		);
+	}
+	
+	renderUserFileInput() {
+		return (
+			<div>
 				<input
 					type="file"
 					onChange={this.handleFileInput}
@@ -91,14 +104,26 @@ class FileInput extends Component {
 					ref={this.hiddenInput}
 					multiple={true}
 				/>
-				<div onClick={this.handleClickDrop} className="div-file-drop">
-					<div>Drop files here</div>
+				<div onClick={this.handleClickDrop} className="file-drop">
+					<div>Drop files anywhere</div>
 					<div>Or</div>
-					<div>Click to upload</div>
+					<div>Click here to upload</div>
 				</div>
-				{incomingData.length? this.renderMapHeaders(): null}
-			</Fragment>
+			</div>
 		);
+	}
+	
+	renderTestData() {
+		return (
+			<div>
+				<div onClick={this.loadTestData} className="file-drop">Download test data</div>
+			</div>
+		);
+	}
+	
+	loadTestData = () => {
+		document.location = '/fakeData.csv';
+		this.setState({showTest: false});
 	}
 	
 	renderMapHeaders() {
@@ -108,7 +133,7 @@ class FileInput extends Component {
 		
 		return (
 			<div>
-				<div className="fileHeaderContainer">
+				<div className="file-header-container">
 					{incomingData.map(file =>
 						<FileHeaderMap
 							key={file.name}
