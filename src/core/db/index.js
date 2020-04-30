@@ -4,16 +4,13 @@ const objHasText = (obj, text) => Object.keys(obj).some(k => typeof obj[k] === '
 
 class ObjectStore {
 	name = "";
-	_os = null;
-	_indexes = [];
 	_db = null;
 	_dbInitPromise = null;
 	_dbInitResolve = null;
 	_eventBus = [];
 	
-	constructor(name, indexes, db) {
+	constructor(name, db) {
 		this.name = name;
-		this._indexes = indexes;
 		this._db = db;
 		this._dbInitPromise = new Promise(resolve => this._dbInitResolve = resolve);
 	}
@@ -107,7 +104,7 @@ export default class Database {
 		this._version = schema.version;
 		
 		this._objectStoreSchema.forEach(ob => {
-			this[ob.name] = new ObjectStore(ob.name, ob.indexes, null);
+			this[ob.name] = new ObjectStore(ob.name);
 		});
 		
 		const dbRequest = indexedDB.open(this.name, this._version);
