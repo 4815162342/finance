@@ -18,9 +18,10 @@ class TransactionsList extends Component {
 		
 		this.state = {
 			records: [],
-			viewCount: 300,
+			viewCount: 50,
 			selectedRows: [],
 			editingRow: {},
+			search: '',
 			sortField,
 			sortDirection,
 		};
@@ -49,15 +50,15 @@ class TransactionsList extends Component {
 	};
 	
 	queryRecords = () => {
-		const {viewCount, sortField, sortDirection} = this.state;
+		const {viewCount, sortField, sortDirection, search} = this.state;
 		
 		const qry = {};
-		qry[sortField] = IDBKeyRange.lowerBound(0);
+		if (search) qry.$text = {$search: search};
 		
-		db.Transactions.get(
-			qry,
-			{limit: viewCount, sort: sortDirection}
-		).then(records => {
+		const options = {limit: viewCount, sort: {}};
+		options.sort[sortField] = sortDirection;
+		
+		db.Transactions.get(qry, options).then(records => {
 			// Another hack - should be handled in DB query
 			this.setState({records: records.filter(r=>!r.hidden)})
 		});
@@ -71,7 +72,8 @@ class TransactionsList extends Component {
 		if (
 			prevState.sortDirection !== this.state.sortDirection ||
 			prevState.sortField !== this.state.sortField ||
-			prevState.viewCount !== this.state.viewCount
+			prevState.viewCount !== this.state.viewCount ||
+			prevState.search !== this.state.search
 		)
 			this.queryRecords();
 		
@@ -82,8 +84,6 @@ class TransactionsList extends Component {
 	render() {
 		const {records, viewCount} = this.state;
 		
-		if (!records.length) return null;
-		
 		return (
 			<div>
 				{this.renderTools()}
@@ -93,19 +93,22 @@ class TransactionsList extends Component {
 						<tbody children={records.map(this.renderTransaction)} />
 					</table>
 				</div>
-				<Input
-					value={viewCount}
-					onChange={viewCount => this.setState({viewCount})}
-				/>
+				{records.length?
+					<Input
+						value={viewCount}
+						onChange={viewCount => this.setState({viewCount})}
+					/>:
+					<div>No results</div>
+				}
 			</div>
 		);
 	}
 	
 	renderTools = () => {
-		const {selectedRows, records} = this.state;
+		const {selectedRows, records, search} = this.state;
 		
 		let selectedRowInfoClasses = ['transactions-list-tools'];
-		if (!selectedRows.length) {
+		if (!selectedRows.length && false) {
 			selectedRowInfoClasses.push('no-display');
 		}
 		
@@ -122,6 +125,11 @@ class TransactionsList extends Component {
 				<div>Sum: <b children={money(selectedSum)}/></div>
 				<div>Count: <b children={selectedRows.length}/></div>
 				<div>Average: <b children={money(selectedSum/selectedRows.length)}/></div>
+				<Input
+					value={search}
+					onChange={search => this.setState({search})}
+					placeholder="Search"
+				/>
 			</div>
 		);
 	};
