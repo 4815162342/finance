@@ -19,7 +19,7 @@ class FileInput extends Component {
 		window.addEventListener('drop', this.handleDrop);
 		
 		db.Transactions.get(
-			{date:null},
+			{date: null},
 			{limit: 1}
 		).then(records => {
 			if (!records.length) this.setState({showTest: true});
