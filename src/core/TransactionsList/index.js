@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-
 import db from '../db/database';
 import Input from '../Input';
 import Touchable from '../Touchable';
@@ -12,6 +11,7 @@ class TransactionsList extends Component {
 	constructor(props) {
 		super(props);
 		
+		const search = localStorage.getItem(transConst.storageKeys.search) || '';
 		const sortField = localStorage.getItem(transConst.storageKeys.field) || 'date';
 		let sortDirection = localStorage.getItem(transConst.storageKeys.direction) || -1;
 		sortDirection = parseInt(sortDirection);
@@ -21,7 +21,7 @@ class TransactionsList extends Component {
 			viewCount: 50,
 			selectedRows: [],
 			editingRow: {},
-			search: '',
+			search,
 			sortField,
 			sortDirection,
 		};
@@ -79,6 +79,7 @@ class TransactionsList extends Component {
 		
 		localStorage.setItem(transConst.storageKeys.field, this.state.sortField)
 		localStorage.setItem(transConst.storageKeys.direction, this.state.sortDirection)
+		localStorage.setItem(transConst.storageKeys.search, this.state.search)
 	}
 
 	render() {

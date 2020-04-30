@@ -2,6 +2,7 @@ export default {
 	storageKeys: {
 		direction: 'transactionsListSortDirection',
 		field: 'transactionsListSortField',
+		search: 'transactionsListSearch',
 	},
 	headers: [{
 		name: 'amount',
