@@ -9,7 +9,7 @@ import './index.css';
 class FileInput extends Component {
 	state = {
 		incomingData: [],
-		showTest: true,
+		showTest: false,
 	};
 	
 	componentDidMount() {
@@ -17,6 +17,13 @@ class FileInput extends Component {
 		window.addEventListener('dragleave', this.handleDragLeave);
 		window.addEventListener('dragover', this.handleDragOver)
 		window.addEventListener('drop', this.handleDrop);
+		
+		db.Transactions.get(
+			{date:null},
+			{limit: 1}
+		).then(records => {
+			if (!records.length) this.setState({showTest: true});
+		});
 	}
 	
 	handleDragEnter = e => {
