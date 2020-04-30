@@ -18,10 +18,7 @@ class FileInput extends Component {
 		window.addEventListener('dragover', this.handleDragOver)
 		window.addEventListener('drop', this.handleDrop);
 		
-		db.Transactions.get(
-			{date: null},
-			{limit: 1}
-		).then(records => {
+		db.Transactions.get({}, {limit: 1, sort:{date:1}}).then(records => {
 			if (!records.length) this.setState({showTest: true});
 		});
 	}

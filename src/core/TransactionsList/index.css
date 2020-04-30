@@ -5,6 +5,8 @@
 	position: sticky;
 	top: 0;
 	background: white;
+	border: 1px solid grey;
+	border-top: none;
 }
 
 .transactions-list-wrapper {
@@ -14,6 +16,7 @@
 
 .transactions-list {
 	border: 1px solid #878da1;
+	border-top: none;
 	border-radius: 5px;
 	text-align: left;
 	border-collapse: collapse;
