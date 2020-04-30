@@ -5,18 +5,24 @@ class ObjectStore {
 	_os = null;
 	_indexes = [];
 	_db = null;
+	_dbInitPromise = null;
+	_dbInitResolve = null;
 	_eventBus = [];
 	
 	constructor(name, indexes, db) {
 		this.name = name;
 		this._indexes = indexes;
 		this._db = db;
+		this._dbInitPromise = new Promise(resolve => this._dbInitResolve = resolve);
 	}
 	// DB often isn't initialized when ObSt is created
-	_setDb (db) {
+	_setDb(db) {
 		this._db = db;
+		this._dbInitResolve();
 	};
-	get (qry, options, callback) {
+	async get(qry, options) {
+		if (!this._db) await this._dbInitPromise;
+		
 		if (!options.sort) options.sort = -1;
 		if (!options.limit) options.limit = 5000;
 		
@@ -29,23 +35,26 @@ class ObjectStore {
 		const direction = options.sort === -1 ? "prev" : "next";
 		const getRequest = objStore.index(indexName).openCursor(qry[indexName], direction);
 		
-		const result = [];
-		getRequest.onsuccess = e => {
-			const cursor = e.target.result;
+		return new Promise((resolve, reject) => {
+			const result = [];
 			
-			if (cursor) {
-				result.push(cursor.value);
+			getRequest.onsuccess = e => {
+				const cursor = e.target.result;
 				
-				if (result.length < options.limit)
-					cursor.continue();
+				if (cursor) {
+					result.push(cursor.value);
+					
+					if (result.length < options.limit)
+						cursor.continue();
+					else
+						resolve(result);
+				}
 				else
-					callback(result);
-			}
-			else
-				callback(result);
-		};
-		
-		getRequest.onerror = console.log;
+					resolve(result);
+			};
+			
+			getRequest.onerror = reject;
+		});
 	};
 	put(input) {
 		if (!input._id) input._id = ObjectHash(input, {algorithm: 'sha1'});
