@@ -33,5 +33,6 @@ tr.selected {background-color: #7c8082;}
 
 @media (prefers-color-scheme: dark) {
 	tr.selected {background-color: #232323;}
+	.transactions-list-tools {background: black;}
 	.transactions-list tbody tr:hover {background-color: #232323;}
 }
