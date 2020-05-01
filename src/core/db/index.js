@@ -65,7 +65,7 @@ class ObjectStore {
 		const putRequest = this._db.transaction(this.name, "readwrite").objectStore(this.name).put(input);
 		
 		putRequest.onsuccess = () => {
-			this._executeBus('put', input);
+			this._emitEvent('put', input);
 		}
 	};
 	update (_id, operation) {
@@ -75,10 +75,10 @@ class ObjectStore {
 		getRequest.onsuccess = () => {
 			const newRecord = {...getRequest.result, ...operation.$set};
 			obStore.put(newRecord);
-			this._executeBus('update', newRecord);
+			this._emitEvent('update', newRecord);
 		}
 	};
-	_executeBus(type, data) {
+	_emitEvent(type, data) {
 		this._eventBus.forEach(listener => {
 			if (listener.type !== type) return;
 			listener.fn(data);
