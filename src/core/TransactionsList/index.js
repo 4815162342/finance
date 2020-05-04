@@ -7,6 +7,11 @@ import {money, elipsesText, ymd, plural, capitalize} from '../format';
 import transConst from './constants';
 import './index.css';
 
+const boldText = (string, text) => {
+	const re = new RegExp(`(${text})`, 'gi');
+	return string.replace(re, '<b>$1</b>')
+};
+
 class TransactionsList extends Component {
 	constructor(props) {
 		super(props);
@@ -249,11 +254,22 @@ class TransactionsList extends Component {
 	};
 	
 	renderDefaultRow = transaction => {
+		const {search} = this.state;
+		
 		return (
 			<Fragment>
-				<td children={transaction.sender} className="transactions-list-sender"/>
-				<td children={elipsesText(transaction.recipient)} className="transactions-list-recipient"/>
-				<td children={elipsesText(transaction.note)} className="transactions-list-note"/>
+				<td
+					dangerouslySetInnerHTML={{__html: boldText(transaction.sender, search)}}
+					className="transactions-list-sender"
+				/>
+				<td
+					dangerouslySetInnerHTML={{__html: boldText(elipsesText(transaction.recipient), search)}}
+					className="transactions-list-recipient"
+				/>
+				<td
+					dangerouslySetInnerHTML={{__html: boldText(elipsesText(transaction.note), search)}}
+					className="transactions-list-note"
+				/>
 			</Fragment>
 		);
 	}
