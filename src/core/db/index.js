@@ -37,7 +37,7 @@ class ObjectStore {
 		return new Promise((resolve, reject) => {
 			const result = [];
 			let textSearch = null;
-			if (qry.$text && qry.$text.$search) textSearch = qry.$text.$search.toLowerCase();
+			if (qry.$text?.$search) textSearch = qry.$text.$search.toLowerCase();
 			
 			getRequest.onsuccess = e => {
 				const cursor = e.target.result;
