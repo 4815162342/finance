@@ -1,4 +1,5 @@
 import React, {PureComponent} from 'react';
+import {NavLink} from 'react-router-dom';
 import './index.css';
 
 export default class Touchable extends PureComponent {
@@ -9,14 +10,15 @@ export default class Touchable extends PureComponent {
 		if (className) classes.push(className);
 		
 		if (href) {
-			return (<a
-				id={id}
-				href={href}
-				target={target}
-				className={classes.join(' ')}
-				children={children}
-				onClick={this.clickWrapper}
-			/>);
+			const elType = href.includes('http')? 'a': NavLink;
+			return React.createElement(elType, {
+				id,
+				target,
+				href,
+				to: href,
+				className: classes.join(' '),
+				onClick: this.clickWrapper,
+			}, children);
 		} else {
 			return (<div
 				style={style}

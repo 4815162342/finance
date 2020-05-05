@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import ObjectHash from 'object-hash';
 import db from '../db/database';
 import FileHeaderMap from './FileHeaderMap'
-import {draggingClass, filetypeDelimiter, requiredFieldsCopy, requiredFields} from './constants';
+import {filetypeDelimiter, requiredFieldsCopy, requiredFields} from './constants';
 import {parseCSV} from './parseCSV';
 import './index.css';
 
@@ -13,9 +13,6 @@ class FileInput extends Component {
 	};
 	
 	componentDidMount() {
-		window.addEventListener('dragenter', this.handleDragEnter);
-		window.addEventListener('dragleave', this.handleDragLeave);
-		window.addEventListener('dragover', this.handleDragOver)
 		window.addEventListener('drop', this.handleDrop);
 		
 		db.Transactions.get({}, {limit: 1, sort:{date:1}}).then(records => {
@@ -23,23 +20,8 @@ class FileInput extends Component {
 		});
 	}
 	
-	handleDragEnter = e => {
-		this.props.onDragEnter(draggingClass);
-	}
-	
-	handleDragLeave = e => {
-		if (!e.x && !e.y) this.props.onDragLeave(draggingClass);
-	}
-	
-	handleDragOver = e => {
-		e.preventDefault();
-	}
-	
 	// User drops file
 	handleDrop = e => {
-		e.stopPropagation();
-		e.preventDefault();
-		this.props.onDragLeave(draggingClass);
 		this.handleFiles(e.dataTransfer.files)
 	}
 	

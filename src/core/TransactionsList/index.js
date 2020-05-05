@@ -70,16 +70,13 @@ class TransactionsList extends Component {
 	};
 	
 	componentWillUnmount() {
-		db.close();
+		//db.close();
 	}
 	
 	componentDidUpdate(prevProps, prevState) {
-		if (
-			prevState.sortDirection !== this.state.sortDirection ||
-			prevState.sortField !== this.state.sortField ||
-			prevState.viewCount !== this.state.viewCount ||
-			prevState.search !== this.state.search
-		)
+		const watchFields = ['sortDirection', 'sortField', 'viewCount', 'search'];
+		
+		if (watchFields.some(f => prevState[f] !== this.state[f]))
 			this.queryRecords();
 		
 		localStorage.setItem(transConst.storageKeys.field, this.state.sortField)
@@ -113,24 +110,22 @@ class TransactionsList extends Component {
 	renderTools = () => {
 		const {selectedRows, records, search} = this.state;
 		
-		let selectedRowInfoClasses = ['transactions-list-tools'];
-		if (!selectedRows.length && false) {
-			selectedRowInfoClasses.push('no-display');
-		}
+		const hideNoSelected = selectedRows.length? '' : 'no-display';
 		
 		const selectedSum = selectedRows.reduce((acc, cur) => {
 			return acc + records.find(r => r._id === cur).amount || 0;
 		}, 0);
 		
 		return (
-			<div className={selectedRowInfoClasses.join(' ')}>
+			<div className='transactions-list-tools'>
 				<div><button
 					onClick={this.onClickHide}
 					children={`Hide ${plural(selectedRows.length, 'transaction')}`}
+					className={hideNoSelected}
 				/></div>
-				<div>Sum: <b children={money(selectedSum)}/></div>
-				<div>Count: <b children={selectedRows.length}/></div>
-				<div>Average: <b children={money(selectedSum/selectedRows.length)}/></div>
+				<div className={hideNoSelected}>Sum: <b children={money(selectedSum)}/></div>
+				<div className={hideNoSelected}>Count: <b children={selectedRows.length}/></div>
+				<div className={hideNoSelected}>Average: <b children={money(selectedSum/selectedRows.length)}/></div>
 				<Input
 					value={search}
 					onChange={search => this.setState({search})}

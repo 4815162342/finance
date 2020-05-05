@@ -1,0 +1,9 @@
+.header-container {
+	background-color: #9de39d;
+	height: 50px;
+}
+
+.header {max-width: 1000px; margin: auto;}
+
+.header-item {height: 100%;}
+.header-item.active {font-weight: bold;}
