@@ -1,5 +1,5 @@
 import React, {PureComponent} from 'react';
-import Touchable from 'core/Touchable'
+import Touchable from 'core/Touchable';
 import db from '../db/database';
 import './index.css';
 
