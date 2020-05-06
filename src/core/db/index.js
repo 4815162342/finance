@@ -23,7 +23,8 @@ class ObjectStore {
 		if (!this._db) await this._dbInitPromise;
 		
 		if (!options.sort) options.sort = {_id: -1};
-		if (!options.limit) options.limit = 5000;
+		if (!options.limit) options.limit = 50;
+		if (!options.skip) options.skip = 0;
 		
 		const indexName = Object.keys(options.sort)[0];
 		const objStore = this._db.transaction(this.name, "readonly").objectStore(this.name);
@@ -36,14 +37,19 @@ class ObjectStore {
 		
 		return new Promise((resolve, reject) => {
 			const result = [];
+			let index = -1;
 			let textSearch = null;
 			if (qry.$text?.$search) textSearch = qry.$text.$search.toLowerCase();
 			
 			getRequest.onsuccess = e => {
 				const cursor = e.target.result;
+				index++;
 				
 				if (cursor) {
-					if (!textSearch || objHasText(cursor.value, textSearch))
+					const isAfterSkip = index >= options.skip;
+					const hasSearchTerm = !textSearch || objHasText(cursor.value, textSearch);
+					
+					if (hasSearchTerm && isAfterSkip)
 						result.push(cursor.value);
 										
 					if (result.length < options.limit)
@@ -58,6 +64,24 @@ class ObjectStore {
 			getRequest.onerror = reject;
 		});
 	};
+	async count(qry) {
+		if (!this._db) await this._dbInitPromise;
+		
+		const indexName = Object.keys(qry)[0];
+		const objStore = this._db.transaction(this.name, "readonly").objectStore(this.name);
+		if (indexName && !objStore.indexNames.contains(indexName)) {
+			throw new Error(`Unknown index '${indexName}'`);
+		}
+		
+		const countRequest = indexName?
+			objStore.index(indexName).count():
+			objStore.count();
+		
+		return new Promise((resolve, reject) => {
+			countRequest.onsuccess = e => resolve(countRequest.result);
+			countRequest.onerror = reject;
+		});
+	}
 	put(input) {
 		if (!input._id) input._id = ObjectHash(input, {algorithm: 'sha1'});
 		if (!input.importedOn) input.importedOn = new Date();
