@@ -54,7 +54,7 @@ class TransactionsList extends Component {
 		});
 		
 		this.queryRecords()
-	};
+	}
 	
 	queryRecords = () => {
 		const {viewCount, sortField, sortDirection, search, skip} = this.state;
@@ -71,7 +71,7 @@ class TransactionsList extends Component {
 		});
 		
 		db.Transactions.count({}).then(totalCount => this.setState({totalCount}))
-	};
+	}
 	
 	componentWillUnmount() {
 		//db.close();
@@ -131,7 +131,7 @@ class TransactionsList extends Component {
 				/>
 			</div>
 		);
-	};
+	}
 	
 	renderThead = () => {
 		const {selectedRows, records} = this.state;
@@ -151,7 +151,7 @@ class TransactionsList extends Component {
 				</tr>
 			</thead>
 		);
-	};
+	}
 	
 	renderTh = header => {
 		const {sortField, sortDirection} = this.state;
@@ -244,7 +244,7 @@ class TransactionsList extends Component {
 				/></td>
 			</Fragment>
 		);
-	};
+	}
 	
 	renderDefaultRow = transaction => {
 		const {search} = this.state;
@@ -306,7 +306,7 @@ class TransactionsList extends Component {
 		
 		if (clickedSave)
 			db.Transactions.update(transaction._id, {$set: editingRow});
-	};
+	}
 	
 	editTransaction = (field, val) => {
 		const {editingRow} = this.state;
