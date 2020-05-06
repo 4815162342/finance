@@ -23,7 +23,9 @@ class TransactionsList extends Component {
 		
 		this.state = {
 			records: [],
+			totalCount: 0,
 			viewCount: 50,
+			skip: 0,
 			selectedRows: [],
 			editingRow: {},
 			search,
@@ -55,18 +57,20 @@ class TransactionsList extends Component {
 	};
 	
 	queryRecords = () => {
-		const {viewCount, sortField, sortDirection, search} = this.state;
+		const {viewCount, sortField, sortDirection, search, skip} = this.state;
 		
 		const qry = {};
 		if (search) qry.$text = {$search: search};
 		
-		const options = {limit: viewCount, sort: {}};
+		const options = {limit: viewCount, sort: {}, skip};
 		options.sort[sortField] = sortDirection;
 		
 		db.Transactions.get(qry, options).then(records => {
 			// Another hack - should be handled in DB query
 			this.setState({records: records.filter(r=>!r.hidden)})
 		});
+		
+		db.Transactions.count({}).then(totalCount => this.setState({totalCount}))
 	};
 	
 	componentWillUnmount() {
@@ -74,18 +78,18 @@ class TransactionsList extends Component {
 	}
 	
 	componentDidUpdate(prevProps, prevState) {
-		const watchFields = ['sortDirection', 'sortField', 'viewCount', 'search'];
+		const watchFields = ['sortDirection', 'sortField', 'viewCount', 'search', 'skip'];
 		
 		if (watchFields.some(f => prevState[f] !== this.state[f]))
 			this.queryRecords();
 		
-		localStorage.setItem(transConst.storageKeys.field, this.state.sortField)
-		localStorage.setItem(transConst.storageKeys.direction, this.state.sortDirection)
-		localStorage.setItem(transConst.storageKeys.search, this.state.search)
+		localStorage.setItem(transConst.storageKeys.field, this.state.sortField);
+		localStorage.setItem(transConst.storageKeys.direction, this.state.sortDirection);
+		localStorage.setItem(transConst.storageKeys.search, this.state.search);
 	}
 
 	render() {
-		const {records, viewCount} = this.state;
+		const {records} = this.state;
 		
 		return (
 			<div>
@@ -96,13 +100,7 @@ class TransactionsList extends Component {
 						<tbody children={records.map(this.renderTransaction)} />
 					</table>
 				</div>
-				{records.length?
-					<Input
-						value={viewCount}
-						onChange={viewCount => this.setState({viewCount})}
-					/>:
-					<div>No results</div>
-				}
+				{this.renderBottomBar()}
 			</div>
 		);
 	}
@@ -267,6 +265,37 @@ class TransactionsList extends Component {
 				/>
 			</Fragment>
 		);
+	}
+	
+	renderBottomBar = () => {
+		const {records, viewCount, totalCount, skip} = this.state;
+		
+		if (!records.length) return (<div>No results</div>);
+		
+		const end = Math.min(skip+viewCount, totalCount);
+		const positionText = `Showing ${skip+1} - ${end} of ${totalCount.toLocaleString()}`;
+		const leftBtn = skip?
+			(<Button
+				type="emoji"
+				children="⬅️"
+				onClick={() => this.setState({skip: skip-viewCount})}
+			/>): null;
+		
+		return (
+			<div className="transactions-list-bottom-bar">
+				{leftBtn}
+				<Input
+					value={viewCount}
+					onChange={v => this.setState({viewCount: parseInt(v || 0)})}
+				/>
+				<div>{positionText}</div>
+				<Button
+					type="emoji"
+					children="➡️"
+					onClick={() => this.setState({skip: skip+viewCount})}
+				/>
+			</div>
+		)
 	}
 	
 	toggleEdit = transaction => {
