@@ -1,16 +1,12 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import db from '../db/database';
 import Input from '../Input';
 import Touchable from '../Touchable';
 import Button from '../Button';
-import {money, elipsesText, ymd, plural, capitalize} from '../format';
+import TransactionsListItem from './TransactionsListItem';
+import {money, plural, capitalize} from '../format';
 import transConst from './constants';
 import './index.css';
-
-const boldText = (string, text) => {
-	const re = new RegExp(`(${text})`, 'gi');
-	return string.replace(re, '<b>$1</b>')
-};
 
 class TransactionsList extends Component {
 	constructor(props) {
@@ -27,7 +23,7 @@ class TransactionsList extends Component {
 			viewCount: 50,
 			skip: 0,
 			selectedRows: [],
-			editingRow: {},
+			editingRowId: null,
 			search,
 			sortField,
 			sortDirection,
@@ -97,7 +93,7 @@ class TransactionsList extends Component {
 				<div className="transactions-list-wrapper">
 					<table className="transactions-list">
 						{this.renderThead()}
-						<tbody children={records.map(this.renderTransaction)} />
+						<tbody children={records.map(this.renderListItem)} />
 					</table>
 				</div>
 				{this.renderBottomBar()}
@@ -183,90 +179,25 @@ class TransactionsList extends Component {
 		});
 	}
 	
-	renderTransaction = transaction => {
-		const {selectedRows, editingRow} = this.state;
+	renderListItem = transaction => {
+		const {selectedRows, editingRowId, search} = this.state;
 		
+		const isEditing = editingRowId === transaction._id;
 		const isSelected = selectedRows.includes(transaction._id);
-		const isEditing = editingRow._id === transaction._id;
-		
-		let rowClasses = [];
-		if (isSelected) rowClasses.push('selected');
-		
-		const renderRowFn = isEditing? this.renderEditRow : this.renderDefaultRow;
 		
 		return (
-			<tr key={transaction._id} className={rowClasses.join(' ')}>
-				<td>
-					<Input
-						type="checkbox"
-						checked={isSelected}
-						onChange={() => this.toggleRow(transaction._id)}
-					/>
-				</td>
-				<td className="transactions-list-amount">{money(transaction.amount)}</td>
-				<td className="transactions-list-date">{ymd(transaction.date)}</td>
-				{renderRowFn(transaction)}
-				<td onClick={() => this.toggleEdit(transaction)}>
-					<Button
-						children={isEditing? '✅':'✏️'}
-						type="emoji"
-					/>
-				</td>
-			</tr>
+			<TransactionsListItem
+				key={transaction._id}
+				transaction={transaction}
+				isEditing={isEditing}
+				isSelected={isSelected}
+				toggleEdit={this.toggleEdit}
+				toggleSelect={this.toggleSelect}
+				search={search}
+			/>
 		);
 	}
-	
-	renderEditRow = transaction => {
-		const {editingRow} = this.state;
 		
-		const onSubmit = () => this.toggleEdit(transaction);
-		const onEscape = () => this.setState({editingRow: {}});
-		
-		return (
-			<Fragment>
-				<td className="transactions-list-sender"><Input
-					value={editingRow.sender}
-					onChange={val => this.editTransaction('sender', val)}
-					onSubmit={onSubmit}
-					onEscape={onEscape}
-				/></td>
-				<td className="transactions-list-recipient"><Input
-					value={editingRow.recipient}
-					onChange={val => this.editTransaction('recipient', val)}
-					onSubmit={onSubmit}
-					onEscape={onEscape}
-				/></td>
-				<td className="transactions-list-note"><Input
-					value={editingRow.note}
-					onChange={val => this.editTransaction('note', val)}
-					onSubmit={onSubmit}
-					onEscape={onEscape}
-				/></td>
-			</Fragment>
-		);
-	}
-	
-	renderDefaultRow = transaction => {
-		const {search} = this.state;
-		
-		return (
-			<Fragment>
-				<td
-					dangerouslySetInnerHTML={{__html: boldText(transaction.sender, search)}}
-					className="transactions-list-sender"
-				/>
-				<td
-					dangerouslySetInnerHTML={{__html: boldText(elipsesText(transaction.recipient), search)}}
-					className="transactions-list-recipient"
-				/>
-				<td
-					dangerouslySetInnerHTML={{__html: boldText(elipsesText(transaction.note), search)}}
-					className="transactions-list-note"
-				/>
-			</Fragment>
-		);
-	}
-	
 	renderBottomBar = () => {
 		const {records, viewCount, totalCount, skip} = this.state;
 		
@@ -298,24 +229,30 @@ class TransactionsList extends Component {
 		)
 	}
 	
-	toggleEdit = transaction => {
-		const {editingRow} = this.state;
+	toggleEdit = editedTrans => {
+		const {editingRowId} = this.state;
 		
-		const clickedSave = editingRow._id === transaction._id;
-		this.setState({editingRow: clickedSave? {}: transaction});
+		const clickedSave = editingRowId === editedTrans?._id;
+		this.setState({editingRowId: clickedSave? null: editedTrans?._id});
 		
 		if (clickedSave)
-			db.Transactions.update(transaction._id, {$set: editingRow});
+			this.saveEdit(editedTrans);
 	}
 	
-	editTransaction = (field, val) => {
-		const {editingRow} = this.state;
-		
-		const newState = {...editingRow};
-		newState[field] = val;
-		
-		this.setState({editingRow: newState});
+	saveEdit = editedTrans => {
+		db.Transactions.update(editedTrans._id, {$set: editedTrans});
 	}
+	
+	toggleSelect = _id => {
+		const {selectedRows} = this.state;
+		
+		let newSelectedRows = selectedRows.includes(_id)?
+			selectedRows.filter(a => a !== _id):
+			[...selectedRows, _id];
+		
+		this.setState({'selectedRows': newSelectedRows});
+	}
+	
 	
 	toggleAllRows = () => {
 		const {records, selectedRows} = this.state;
@@ -326,17 +263,7 @@ class TransactionsList extends Component {
 		
 		this.setState({'selectedRows': newState});
 	}
-	
-	toggleRow = _id => {
-		const {selectedRows} = this.state;
 		
-		let newSelectedRows = selectedRows.includes(_id)?
-			selectedRows.filter(a => a !== _id):
-			[...selectedRows, _id];
-		
-		this.setState({'selectedRows': newSelectedRows});
-	}
-	
 	onClickHide = () => {
 		const {selectedRows} = this.state;
 		
