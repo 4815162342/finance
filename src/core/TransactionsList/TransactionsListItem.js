@@ -8,6 +8,14 @@ const boldText = (string, text) => {
 	return string.replace(re, '<b>$1</b>')
 };
 
+const fields = [
+	{name: 'amount', isEditable: true, display: money},
+	{name: 'date', isEditable: false, display: ymd},
+	{name: 'sender', isEditable: true},
+	{name: 'recipient', isEditable: true},
+	{name: 'note', isEditable: true},
+];
+
 class TransactionsListItem extends Component {
 	render() {
 		const {isSelected, isEditing, toggleSelect, transaction} = this.props;
@@ -34,40 +42,35 @@ class TransactionsListItem extends Component {
 	renderEditRow = () => {
 		const {editContent} = this.state;
 		
-		const onSubmit = () => this.toggleEditWrapper(editContent);
-		const onEscape = this.toggleEditWrapper;
-		
 		return (
 			<Fragment>
-				<td className="transactions-list-amount">{money(editContent.amount)}</td>
-				<td className="transactions-list-date">{ymd(editContent.date)}</td>
-				<td className="transactions-list-sender"><Input
-					value={editContent.sender}
-					onChange={val => this.editTransaction('sender', val)}
-					onSubmit={onSubmit}
-					onEscape={onEscape}
-				/></td>
-				<td className="transactions-list-recipient"><Input
-					value={editContent.recipient}
-					onChange={val => this.editTransaction('recipient', val)}
-					onSubmit={onSubmit}
-					onEscape={onEscape}
-				/></td>
-				<td className="transactions-list-note"><Input
-					value={editContent.note}
-					onChange={val => this.editTransaction('note', val)}
-					onSubmit={onSubmit}
-					onEscape={onEscape}
-				/></td>
+				{fields.map(this.renderEditTd)}
 				<td onClick={() => this.toggleEditWrapper(editContent)}>
-					<Button
-						children="✅"
-						type="emoji"
-					/>
+					<Button children="✅" type="emoji"/>
 				</td>
 			</Fragment>
 		);
 	}
+	
+	renderEditTd = field => {
+		const {editContent} = this.state;
+		
+		let children;
+		const val = editContent[field.name];
+		
+		if (field.isEditable) {
+			children = (<Input
+				value={val}
+				onChange={v => this.editTransaction(field.name, v)}
+				onSubmit={() => this.toggleEditWrapper(editContent)}
+				onEscape={this.toggleEditWrapper}
+			/>);
+		} else {
+			children = field.display? field.display(val) : val;
+		}
+		
+		return (<td className={`transactions-list-${field.name}`} children={children} key={field.name}/>);
+	};
 	
 	renderDefaultRow = () => {
 		const {search, transaction} = this.props;

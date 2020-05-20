@@ -27,6 +27,7 @@
 .transactions-list-note {width: 250px;}
 .transactions-list-date {width: 115px;}
 .transactions-list-amount {text-align: center; width: 100px;}
+.transactions-list-amount input {width: inherit;}
 
 tr.selected {background-color: #7c8082;}
 .transactions-list tbody tr:hover {background-color: #7c8082;}

@@ -107,7 +107,7 @@ class TransactionsList extends Component {
 		const hideNoSelected = selectedRows.length? '' : 'no-display';
 		
 		const selectedSum = selectedRows.reduce((acc, cur) => {
-			return acc + records.find(r => r._id === cur).amount || 0;
+			return acc + parseInt(records.find(r => r._id === cur).amount) || 0;
 		}, 0);
 		
 		return (
@@ -236,11 +236,7 @@ class TransactionsList extends Component {
 		this.setState({editingRowId: clickedSave? null: editedTrans?._id});
 		
 		if (clickedSave)
-			this.saveEdit(editedTrans);
-	}
-	
-	saveEdit = editedTrans => {
-		db.Transactions.update(editedTrans._id, {$set: editedTrans});
+			db.Transactions.update(editedTrans._id, {$set: editedTrans});
 	}
 	
 	toggleSelect = _id => {
@@ -252,7 +248,6 @@ class TransactionsList extends Component {
 		
 		this.setState({'selectedRows': newSelectedRows});
 	}
-	
 	
 	toggleAllRows = () => {
 		const {records, selectedRows} = this.state;
