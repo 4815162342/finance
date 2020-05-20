@@ -52,7 +52,7 @@ class TransactionsListItem extends Component {
 		);
 	}
 	
-	renderEditTd = field => {
+	renderEditTd = (field) => {
 		const {editContent} = this.state;
 		
 		let children;
