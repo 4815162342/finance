@@ -9,7 +9,7 @@ const boldText = (string, text) => {
 };
 
 const fields = [
-	{name: 'amount', isEditable: true, display: money},
+	{name: 'amount', isEditable: true, display: money, parse: parseInt},
 	{name: 'date', isEditable: false, display: ymd},
 	{name: 'sender', isEditable: true},
 	{name: 'recipient', isEditable: true},
@@ -56,12 +56,12 @@ class TransactionsListItem extends Component {
 		const {editContent} = this.state;
 		
 		let children;
-		const val = editContent[field.name];
+		const val = editContent[field.name], parse = field.parse || (a=>a);
 		
 		if (field.isEditable) {
 			children = (<Input
 				value={val}
-				onChange={v => this.editTransaction(field.name, v)}
+				onChange={v => this.editTransaction(field.name, parse(v))}
 				onSubmit={() => this.toggleEditWrapper(editContent)}
 				onEscape={this.toggleEditWrapper}
 			/>);

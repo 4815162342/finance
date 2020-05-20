@@ -107,7 +107,7 @@ class TransactionsList extends Component {
 		const hideNoSelected = selectedRows.length? '' : 'no-display';
 		
 		const selectedSum = selectedRows.reduce((acc, cur) => {
-			return acc + parseInt(records.find(r => r._id === cur).amount) || 0;
+			return acc + records.find(r => r._id === cur).amount || 0;
 		}, 0);
 		
 		return (
