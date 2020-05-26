@@ -85,6 +85,12 @@ class ObjectStore {
 			countRequest.onsuccess = e => resolve(countRequest.result);
 			countRequest.onerror = reject;
 		});
+	};
+	insert(input) {
+		const {_id} = input;
+		this.get({_id}, {limit:1}).then(records => {
+			if (!records[0]) this.put(input);
+		});
 	}
 	put(input) {
 		if (!input._id) input._id = ObjectHash(input, {algorithm: 'sha1'});

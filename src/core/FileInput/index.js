@@ -173,7 +173,7 @@ class FileInput extends Component {
 					
 					transaction._id = ObjectHash(transaction.raw, {algorithm: 'sha1'});
 					
-					db.Transactions.put(transaction);
+					db.Transactions.insert(transaction);
 				},
 			});
 		});
