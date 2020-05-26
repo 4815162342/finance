@@ -27,13 +27,17 @@ class ObjectStore {
 		if (!options.skip) options.skip = 0;
 		
 		const indexName = Object.keys(options.sort)[0];
-		const objStore = this._db.transaction(this.name, "readonly").objectStore(this.name);
-		if (!objStore.indexNames.contains(indexName)) {
-			throw new Error(`Unknown index '${indexName}'`);
+		let objStore = this._db.transaction(this.name, "readonly").objectStore(this.name);
+		
+		if (indexName !== "_id") {
+			if (!objStore.indexNames.contains(indexName))
+				throw new Error(`Unknown index '${indexName}'`);
+			
+			objStore = objStore.index(indexName);
 		}
 		
 		const direction = options.sort[indexName] === -1 ? "prev" : "next";
-		const getRequest = objStore.index(indexName).openCursor(qry[indexName], direction);
+		const getRequest = objStore.openCursor(qry[indexName], direction);
 		
 		return new Promise((resolve, reject) => {
 			const result = [];
