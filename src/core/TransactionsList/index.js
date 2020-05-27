@@ -66,7 +66,7 @@ class TransactionsList extends Component {
 			this.setState({records: records.filter(r=>!r.hidden)})
 		});
 		
-		db.Transactions.count({}).then(totalCount => this.setState({totalCount}))
+		db.Transactions.count({}).then(totalCount => this.setState({totalCount}));
 	}
 	
 	componentWillUnmount() {
