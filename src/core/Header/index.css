@@ -1,6 +1,7 @@
 .header-container {
 	background-color: #9de39d;
 	height: 50px;
+	margin-bottom: 20px;
 }
 
 .header {max-width: 1000px; margin: auto;}

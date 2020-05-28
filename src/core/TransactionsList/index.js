@@ -112,10 +112,10 @@ class TransactionsList extends Component {
 		
 		return (
 			<div className='transactions-list-tools'>
-				<div><button
+				<div><Button
 					onClick={this.onClickHide}
 					children={`Hide ${plural(selectedRows.length, 'transaction')}`}
-					className={hideNoSelected}
+					classes={hideNoSelected}
 				/></div>
 				<div className={hideNoSelected}>Sum: <b children={money(selectedSum)}/></div>
 				<div className={hideNoSelected}>Count: <b children={selectedRows.length}/></div>

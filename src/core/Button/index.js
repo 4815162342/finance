@@ -2,14 +2,14 @@ import React, {Component} from 'react';
 import './index.css';
 
 class Button extends Component {
-	static defaultProps = {
-	}
-	
 	render() {
-		let {onClick, children, type} = this.props;
+		const {onClick, children, type, classes} = this.props;
 		const classNames = [];
 		
+		if (classes) classNames.push(classes);
+		
 		if (type === 'emoji') classNames.push('btn-emoji')
+		else classNames.push('btn-default');
 		
 		return (
 			<button
