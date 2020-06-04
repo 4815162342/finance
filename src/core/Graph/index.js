@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {money} from '../format';
+import {elipsesText} from '../format';
 import './index.css';
 
 class Graph extends Component {
@@ -51,7 +52,7 @@ class Graph extends Component {
 					<div>{money(point.amount)}</div>
 					<div>{point.recipient}</div>
 					<div>{point.sender}</div>
-					<div>{point.note}</div>
+					<div>{elipsesText(point.note || '')}</div>
 				</span>
 			</div>
 		);

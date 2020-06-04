@@ -14,12 +14,16 @@
 }
 .graph-content {
 	display: flex;
-	justify-content: space-between;
+	justify-content: space-evenly;
 	align-items: baseline;
 	height: 300px;
+	width: 100%;
+	overflow-x: scroll;
+	overflow-y: hidden;
 }
 
 .graph-bar {
+	flex-grow: 1;
 	background-color: grey;
 	width: 16px;
 	margin: 0 2px;
