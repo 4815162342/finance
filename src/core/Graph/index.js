@@ -7,7 +7,7 @@ class Graph extends Component {
 	constructor(props) {
 		super(props);
 		
-		this.max = Number.NEGATIVE_INFINITY;
+		this.xMax = Number.NEGATIVE_INFINITY;
 		this.yTicks = 6;
 	}
 	render() {
@@ -17,10 +17,10 @@ class Graph extends Component {
 		// clean & sort data
 		let cols = data.filter(d=>!isNaN(d.amount)).sort((a, b) => a.date - b.date);
 		
-		// Determine max
-		let newMax = Number.NEGATIVE_INFINITY;
-		cols.forEach(p => newMax = Math.max(newMax, p.amount));
-		this.max = newMax;
+		// Determine xMax
+		let newxMax = Number.NEGATIVE_INFINITY;
+		cols.forEach(p => newxMax = Math.max(newxMax, p.amount));
+		this.xMax = newxMax;
 		
 		const yTicks = [...Array(this.yTicks).keys()];
 		
@@ -40,7 +40,7 @@ class Graph extends Component {
 	}
 	
 	renderBar = (point) => {
-		const height = 300 * point.amount / this.max;
+		const height = 300 * point.amount / this.xMax;
 		const style = {height: `${height}px`};
 		
 		const date = point.date.toISOString().substring(0, 10);
@@ -59,7 +59,7 @@ class Graph extends Component {
 	}
 	
 	renderYtick = (i) => {
-		const val = money(this.max * i / (this.yTicks-1));
+		const val = money(this.xMax * i / (this.yTicks - 1));
 		
 		return (
 			<div key={i} children={val} />
