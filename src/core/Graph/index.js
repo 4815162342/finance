@@ -40,12 +40,13 @@ class Graph extends Component {
 	}
 	
 	renderBar = (point) => {
-		const height = 300 * point.amount / this.xMax;
+		const height = 300 * point.amount / this.xMax - 20;
 		const style = {height: `${height}px`};
 		
 		const date = point.date.toISOString().substring(0, 10);
 		
 		return (
+			<div>
 			<div key={point._id} className="graph-bar tooltip" style={style}>
 				<span className="tooltiptext">
 					<div>{date}</div>
@@ -54,6 +55,8 @@ class Graph extends Component {
 					<div>{point.sender}</div>
 					<div>{elipsesText(point.note || '')}</div>
 				</span>
+			</div>
+			<div children={date} />
 			</div>
 		);
 	}
