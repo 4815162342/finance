@@ -21,9 +21,7 @@ class Footer extends PureComponent {
 	}
 	
 	export() {
-		db.Transactions.get({
-			amount: IDBKeyRange.lowerBound(0)
-		}, {}, data => {
+		db.Transactions.get({_id: null}, {}).then(data => {
 			const file = new Blob([JSON.stringify(data)], {type: 'json'});
 			const a = document.createElement("a");
 			const url = URL.createObjectURL(file);

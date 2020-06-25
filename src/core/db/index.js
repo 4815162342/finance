@@ -23,7 +23,6 @@ class ObjectStore {
 		if (!this._db) await this._dbInitPromise;
 		
 		if (!options.sort) options.sort = {_id: -1};
-		if (!options.limit) options.limit = 50;
 		if (!options.skip) options.skip = 0;
 		
 		const indexName = Object.keys(options.sort)[0];
@@ -56,7 +55,7 @@ class ObjectStore {
 					if (hasSearchTerm && isAfterSkip)
 						result.push(cursor.value);
 										
-					if (result.length < options.limit)
+					if (!(options.limit && result.length >= options.limit))
 						cursor.continue();
 					else
 						resolve(result);
@@ -88,7 +87,7 @@ class ObjectStore {
 	};
 	insert(input) {
 		const {_id} = input;
-		this.get({_id}, {limit:1}).then(records => {
+		this.get({_id}, {limit: 1}).then(records => {
 			if (!records[0]) this.put(input);
 		});
 	}
