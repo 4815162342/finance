@@ -26,7 +26,7 @@ class Footer extends PureComponent {
 			const a = document.createElement("a");
 			const url = URL.createObjectURL(file);
 			a.href = url;
-			a.download = 'finances.json';
+			a.download = 'finances_export.json';
 			document.body.appendChild(a);
 			a.click();
 			setTimeout(function() {
