@@ -47,16 +47,16 @@ class Graph extends Component {
 		
 		return (
 			<div>
-			<div key={point._id} className="graph-bar tooltip" style={style}>
-				<span className="tooltiptext">
-					<div>{date}</div>
-					<div>{money(point.amount)}</div>
-					<div>{point.recipient}</div>
-					<div>{point.sender}</div>
-					<div>{elipsesText(point.note || '')}</div>
-				</span>
-			</div>
-			<div children={date} />
+				<div key={point._id} className="graph-bar tooltip" style={style}>
+					<span className="tooltiptext">
+						<div>{date}</div>
+						<div>{money(point.amount)}</div>
+						<div>{point.recipient}</div>
+						<div>{point.sender}</div>
+						<div>{elipsesText(point.note || '')}</div>
+					</span>
+				</div>
+				<div children={date} />
 			</div>
 		);
 	}
